@@ -1,5 +1,7 @@
 {
+  "id": "trump-tariff-alert-starter",
   "name": "Trump Tariff Alert System - Starter",
+  "active": false,
   "nodes": [
     {
       "parameters": {
@@ -86,13 +88,7 @@
       "name": "Telegram Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1240, -100],
-      "credentials": {
-        "telegramApi": {
-          "id": "REPLACE_WITH_CREDENTIAL_ID",
-          "name": "Telegram account"
-        }
-      }
+      "position": [1240, -100]
     }
   ],
   "connections": {
@@ -162,4 +158,3 @@
   "updatedAt": "2026-06-04T00:00:00.000Z",
   "versionId": "starter"
 }
-
