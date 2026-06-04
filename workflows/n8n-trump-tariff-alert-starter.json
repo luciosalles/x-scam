@@ -22,6 +22,16 @@
     },
     {
       "parameters": {
+        "jsCode": "const feeds = [\n  { sourceId: 'google_trump_tariff_china', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=Trump+tariff+China&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_ustr_section_301', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=USTR+Section+301+tariff&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_white_house_tariff_mexico', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=White+House+tariff+Mexico&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_tariff_exemption', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=tariff+exemption&hl=en-US&gl=US&ceid=US:en' }\n];\nreturn feeds.map(feed => ({ json: feed }));"
+      },
+      "id": "feed-list",
+      "name": "Feed List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
         "url": "={{$json.feedUrl}}"
       },
       "id": "rss-read",
@@ -29,16 +39,6 @@
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.1,
       "position": [520, 0]
-    },
-    {
-      "parameters": {
-        "jsCode": "const feeds = [\n  { sourceId: 'whitehouse_presidential_actions', layer: 'official_primary', weight: 100, feedUrl: 'https://www.whitehouse.gov/presidential-actions/feed/' },\n  { sourceId: 'whitehouse_briefing_room', layer: 'official_primary', weight: 95, feedUrl: 'https://www.whitehouse.gov/briefing-room/feed/' },\n  { sourceId: 'fed_all_feeds', layer: 'macro_market_official', weight: 88, feedUrl: 'https://www.federalreserve.gov/feeds/press_all.xml' },\n  { sourceId: 'google_trump_tariff_china', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=Trump+tariff+China&hl=en-US&gl=US&ceid=US:en' }\n];\nreturn feeds.map(feed => ({ json: feed }));"
-      },
-      "id": "feed-list",
-      "name": "Feed List",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [260, 0]
     },
     {
       "parameters": {
@@ -81,7 +81,7 @@
     },
     {
       "parameters": {
-        "chatId": "={{$env.TELEGRAM_CHAT_ID}}",
+        "chatId": "5043666791",
         "text": "={{$json.preAlertLevel + ' | Tariff Watch\\nScore: ' + $json.preScore + '/100\\nHeadline: ' + $json.normalizedTitle + '\\nLink: ' + $json.link + '\\n\\nMarket bias: use AI classifier node here before paid launch.'}}"
       },
       "id": "telegram",
