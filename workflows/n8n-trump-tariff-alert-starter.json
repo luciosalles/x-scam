@@ -42,7 +42,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return items.map(item => {\n  const j = item.json;\n  const title = j.title || '';\n  const summary = j.contentSnippet || j.content || j.description || '';\n  const text = `${title} ${summary}`.toLowerCase();\n  const critical = ['tariff', 'tariffs', 'duties', 'section 301', 'section 232', 'executive order', 'proclamation', 'retaliation', 'trade war'];\n  const countries = ['china', 'mexico', 'canada', 'european union', 'eu', 'japan', 'south korea', 'taiwan', 'brazil', 'india'];\n  const channels = ['semiconductor', 'chips', 'autos', 'steel', 'aluminum', 'copper', 'oil', 'rare earths', 'supply chain', 'exports', 'imports'];\n  const soft = ['considering', 'may', 'could', 'proposal', 'discussion', 'rumor', 'sources say', 'draft'];\n  const count = arr => arr.filter(term => text.includes(term)).length;\n  const criticalHits = count(critical);\n  const countryHits = count(countries);\n  const channelHits = count(channels);\n  const softHits = count(soft);\n  let score = 0;\n  score += Math.min(criticalHits, 2) * 35;\n  score += Math.min(countryHits, 2) * 20;\n  score += Math.min(channelHits, 2) * 15;\n  score += /immediately|effective|ban|restriction|sanction|emergency|investigation|review/.test(text) ? 15 : 0;\n  score -= Math.min(softHits, 2) * 20;\n  if (criticalHits >= 1 && (countryHits >= 1 || channelHits >= 1)) score += 10;\n  score = Math.max(0, Math.min(100, score));\n  let alertLevel = 'GREEN';\n  if (score >= 90) alertLevel = 'RED';\n  else if (score >= 75) alertLevel = 'ORANGE';\n  else if (score >= 55) alertLevel = 'YELLOW';\n  return { json: { ...j, normalizedTitle: title.trim(), summary: summary.trim(), preScore: score, preAlertLevel: alertLevel } };\n});"
+        "jsCode": "return items.map(item => {\n  const j = item.json;\n  const title = j.title || '';\n  const summary = j.contentSnippet || j.content || j.description || '';\n  const text = `${title} ${summary}`.toLowerCase();\n  const publishedRaw = j.isoDate || j.pubDate || j.pubdate || '';\n  const publishedAt = publishedRaw ? new Date(publishedRaw) : null;\n  const publishedTs = publishedAt && !Number.isNaN(publishedAt.getTime()) ? publishedAt.getTime() : null;\n  const ageHours = publishedTs ? (Date.now() - publishedTs) / 3600000 : 9999;\n  const critical = ['tariff', 'tariffs', 'duties', 'section 301', 'section 232', 'executive order', 'proclamation', 'retaliation', 'trade war'];\n  const countries = ['china', 'mexico', 'canada', 'european union', 'eu', 'japan', 'south korea', 'taiwan', 'brazil', 'india'];\n  const channels = ['semiconductor', 'chips', 'autos', 'steel', 'aluminum', 'copper', 'oil', 'rare earths', 'supply chain', 'exports', 'imports'];\n  const hardImpact = ['immediately', 'effective', 'ban', 'restriction', 'sanction', 'sanctions', 'emergency', 'investigation', 'review', 'proclamation', 'executive order'];\n  const soft = ['considering', 'may', 'could', 'proposal', 'discussion', 'rumor', 'sources say', 'draft'];\n  const count = arr => arr.filter(term => text.includes(term)).length;\n  const criticalHits = count(critical);\n  const countryHits = count(countries);\n  const channelHits = count(channels);\n  const hardImpactHits = count(hardImpact);\n  const softHits = count(soft);\n  let score = 0;\n  score += Math.min(criticalHits, 3) * 45;\n  score += Math.min(countryHits, 2) * 28;\n  score += Math.min(channelHits, 2) * 22;\n  score += Math.min(hardImpactHits, 2) * 18;\n  if (criticalHits >= 1 && countryHits >= 1) score += 25;\n  if (criticalHits >= 1 && channelHits >= 1) score += 20;\n  if (/white house|ustr|federal register|treasury|ofac/.test(text)) score += 12;\n  score -= Math.min(softHits, 2) * 35;\n  let recencyBoost = 0;\n  if (ageHours <= 1) recencyBoost = 40;\n  else if (ageHours <= 3) recencyBoost = 30;\n  else if (ageHours <= 6) recencyBoost = 20;\n  else if (ageHours <= 12) recencyBoost = 10;\n  else if (ageHours <= 24) recencyBoost = 5;\n  else if (ageHours <= 48) recencyBoost = 0;\n  else recencyBoost = -100;\n  score += recencyBoost;\n  score = Math.max(0, Math.min(220, score));\n  let alertLevel = 'GREEN';\n  if (score >= 170) alertLevel = 'RED';\n  else if (score >= 130) alertLevel = 'ORANGE';\n  else if (score >= 90) alertLevel = 'YELLOW';\n  return { json: { ...j, normalizedTitle: title.trim(), summary: summary.trim(), publishedTs, ageHours: Math.round(ageHours * 10) / 10, recencyBoost, preScore: score, preAlertLevel: alertLevel } };\n});"
       },
       "id": "pre-score",
       "name": "Pre-score",
@@ -52,13 +52,13 @@
     },
     {
       "parameters": {
-        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.seen = staticData.seen || {};\nconst now = Date.now();\nconst ttlMs = 30 * 60 * 1000;\nconst output = [];\nfor (const item of items) {\n  const j = item.json;\n  const title = (j.normalizedTitle || j.title || '').toLowerCase().trim();\n  const link = (j.link || '').trim();\n  const key = `${title}|${link}`;\n  const text = `${j.normalizedTitle || ''} ${j.summary || ''}`;\n  const strongEnough = j.preScore >= 90 && j.preAlertLevel === 'RED';\n  const notSoft = !/\\b(may|could|considering|rumor|draft|sources say)\\b/i.test(text);\n  if (strongEnough && notSoft) {\n    const seenAt = staticData.seen[key];\n    if (!seenAt || now - seenAt > ttlMs) {\n      staticData.seen[key] = now;\n      output.push(item);\n    }\n  }\n}\nfor (const [key, ts] of Object.entries(staticData.seen)) {\n  if (now - ts > ttlMs) delete staticData.seen[key];\n}\nreturn output;"
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.seen = staticData.seen || {};\nconst now = Date.now();\nconst ttlMs = 6 * 60 * 60 * 1000;\nconst candidates = [];\nfor (const item of items) {\n  const j = item.json;\n  const title = (j.normalizedTitle || j.title || '').toLowerCase().trim();\n  const link = (j.link || '').trim();\n  const key = `${title}|${link}`;\n  const text = `${j.normalizedTitle || ''} ${j.summary || ''}`;\n  const isRecentEnough = typeof j.publishedTs === 'number' && now - j.publishedTs <= 48 * 60 * 60 * 1000;\n  const strongEnough = j.preScore >= 170 && j.preAlertLevel === 'RED';\n  const notSoft = !/\\b(may|could|considering|rumor|draft|sources say)\\b/i.test(text);\n  if (isRecentEnough && strongEnough && notSoft) {\n    const seenAt = staticData.seen[key];\n    if (!seenAt || now - seenAt > ttlMs) {\n      candidates.push({ item, key });\n    }\n  }\n}\nfor (const [key, ts] of Object.entries(staticData.seen)) {\n  if (now - ts > ttlMs) delete staticData.seen[key];\n}\nif (!candidates.length) return [];\ncandidates.sort((a, b) => {\n  const scoreDiff = (b.item.json.preScore || 0) - (a.item.json.preScore || 0);\n  if (scoreDiff !== 0) return scoreDiff;\n  return (a.item.json.ageHours || 9999) - (b.item.json.ageHours || 9999);\n});\nconst winner = candidates[0];\nstaticData.seen[winner.key] = now;\nreturn [winner.item];"
       },
       "id": "high-impact-only",
       "name": "High Impact Only",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [920, 0]
+      "position": [960, 0]
     },
     {
       "parameters": {
@@ -70,9 +70,9 @@
           },
           "conditions": [
             {
-              "id": "only-red",
+              "id": "only-extreme-red",
               "leftValue": "={{$json.preScore}}",
-              "rightValue": 90,
+              "rightValue": 170,
               "operator": {
                 "type": "number",
                 "operation": "gte"
@@ -87,18 +87,18 @@
       "name": "IF Alert Worthy",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1080, 0]
+      "position": [1160, 0]
     },
     {
       "parameters": {
         "chatId": "5043666791",
-        "text": "={{$json.preAlertLevel + ' | TARIFF ALERT\\nScore: ' + $json.preScore + '/100\\nHeadline: ' + $json.normalizedTitle + '\\nLink: ' + $json.link + '\\n\\nBias: high-impact only.'}}"
+        "text": "={{$json.preAlertLevel + ' | TARIFF ALERT\\nScore: ' + $json.preScore + '/220\\nAge: ' + $json.ageHours + 'h\\nRecency bonus: ' + $json.recencyBoost + '\\nHeadline: ' + $json.normalizedTitle + '\\nLink: ' + $json.link + '\\n\\nBias: extreme high-impact only.'}}"
       },
       "id": "telegram",
       "name": "Telegram Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1320, -100]
+      "position": [1400, -100]
     }
   ],
   "connections": {
