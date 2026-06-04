@@ -1,0 +1,182 @@
+{
+  "updated": "2026-06-04",
+  "sensitivityProfiles": {
+    "conservative": {
+      "minScore": 78,
+      "minConfidence": 0.72,
+      "requireOfficialOrTwoSources": true,
+      "cooldownMinutesByFingerprint": 45,
+      "useCase": "Menos ruido, melhor para grupo pago."
+    },
+    "balanced": {
+      "minScore": 65,
+      "minConfidence": 0.62,
+      "requireOfficialOrTwoSources": false,
+      "cooldownMinutesByFingerprint": 30,
+      "useCase": "MVP recomendado."
+    },
+    "aggressive": {
+      "minScore": 52,
+      "minConfidence": 0.5,
+      "requireOfficialOrTwoSources": false,
+      "cooldownMinutesByFingerprint": 15,
+      "useCase": "Mais sinais, mais falsos positivos; bom para calibrar."
+    }
+  },
+  "alertLevels": [
+    {
+      "level": "GREEN",
+      "scoreRange": [0, 39],
+      "action": "log_only",
+      "description": "Contexto util, sem alerta ao usuario."
+    },
+    {
+      "level": "YELLOW",
+      "scoreRange": [40, 59],
+      "action": "telegram_internal_watchlist",
+      "description": "Monitorar narrativa, sem viés forte."
+    },
+    {
+      "level": "ORANGE",
+      "scoreRange": [60, 77],
+      "action": "telegram_public_alert",
+      "description": "Pode afetar volatilidade intraday."
+    },
+    {
+      "level": "RED",
+      "scoreRange": [78, 100],
+      "action": "telegram_and_whatsapp_priority",
+      "description": "Headline de impacto alto com risco de movimento rapido."
+    }
+  ],
+  "keywordWeights": {
+    "critical": {
+      "weight": 28,
+      "terms": [
+        "tariff",
+        "tariffs",
+        "duties",
+        "import duty",
+        "reciprocal tariff",
+        "section 301",
+        "section 232",
+        "executive order",
+        "proclamation",
+        "retaliation",
+        "trade war"
+      ]
+    },
+    "countries": {
+      "weight": 16,
+      "terms": [
+        "China",
+        "Mexico",
+        "Canada",
+        "European Union",
+        "EU",
+        "Japan",
+        "South Korea",
+        "Taiwan",
+        "Brazil",
+        "India"
+      ]
+    },
+    "marketChannels": {
+      "weight": 12,
+      "terms": [
+        "semiconductor",
+        "chips",
+        "autos",
+        "steel",
+        "aluminum",
+        "copper",
+        "oil",
+        "rare earths",
+        "soybeans",
+        "supply chain",
+        "exports",
+        "imports"
+      ]
+    },
+    "riskLanguage": {
+      "weight": 10,
+      "terms": [
+        "immediately",
+        "effective",
+        "ban",
+        "restriction",
+        "investigation",
+        "review",
+        "raise",
+        "increase",
+        "additional",
+        "sanctions",
+        "emergency"
+      ]
+    },
+    "softLanguage": {
+      "weight": -8,
+      "terms": [
+        "considering",
+        "may",
+        "could",
+        "proposal",
+        "discussion",
+        "rumor",
+        "sources say",
+        "draft"
+      ]
+    }
+  },
+  "sourceMultipliers": {
+    "official_primary": 1.25,
+    "macro_market_official": 1.05,
+    "news_validation": 0.95,
+    "market_reaction": 0.75,
+    "china_global_trade": 0.85
+  },
+  "assetBiasRules": [
+    {
+      "condition": "tariff or trade war involving China, Mexico, EU, Canada",
+      "bias": "risk_off",
+      "nas100": "bearish",
+      "spx": "bearish",
+      "usd": "mixed_to_bullish",
+      "gold": "bullish_if_uncertainty_high",
+      "notes": "Tariffs tend to pressure margin expectations, supply chains and risk appetite."
+    },
+    {
+      "condition": "tariff exemption, delay, rollback or negotiation progress",
+      "bias": "risk_on",
+      "nas100": "bullish",
+      "spx": "bullish",
+      "usd": "mixed",
+      "gold": "bearish_to_neutral",
+      "notes": "Relief headlines can create short-covering."
+    },
+    {
+      "condition": "retaliation from China or export restriction on critical materials",
+      "bias": "risk_off",
+      "nas100": "strong_bearish",
+      "spx": "bearish",
+      "usd": "bullish_vs_risk_fx",
+      "gold": "bullish",
+      "notes": "High supply-chain and geopolitical stress."
+    },
+    {
+      "condition": "Fed hawkish surprise plus tariff inflation language",
+      "bias": "rates_up_risk_off",
+      "nas100": "strong_bearish",
+      "spx": "bearish",
+      "usd": "bullish",
+      "gold": "mixed",
+      "notes": "Tariff inflation + higher-for-longer repricing is high impact."
+    }
+  ],
+  "dedupe": {
+    "fingerprintFields": ["normalizedTitle", "primaryEntity", "sourceDomain"],
+    "nearDuplicateWindowMinutes": 120,
+    "sameSourcePenalty": 18
+  }
+}
+

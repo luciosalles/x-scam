@@ -1,0 +1,32 @@
+layer,source_id,name,url,priority,starting_weight,notes
+official_primary,whitehouse_presidential_actions,White House - Presidential Actions,https://www.whitehouse.gov/presidential-actions/,1,100,Start here; highest market authority
+official_primary,whitehouse_briefing_room,White House - Briefing Room,https://www.whitehouse.gov/briefing-room/,1,95,Statements fact sheets remarks
+official_primary,ustr_press_office,USTR - Press Office,https://ustr.gov/about-us/policy-offices/press-office,1,100,Section 301 trade negotiations tariff reviews
+official_primary,federal_register_search_tariff,Federal Register - Tariff Search,https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=tariff,1,98,Legal implementation details
+official_primary,treasury_press,U.S. Treasury - Press Releases,https://home.treasury.gov/news/press-releases,2,90,Sanctions fiscal policy financial restrictions
+official_primary,ofac_recent_actions,OFAC - Recent Actions,https://ofac.treasury.gov/recent-actions,2,88,Sanctions with commodity/geopolitical impact
+official_primary,commerce_news,Department of Commerce - News,https://www.commerce.gov/news,2,86,Trade industry export controls
+official_primary,cbp_newsroom,CBP - Newsroom,https://www.cbp.gov/newsroom,2,82,Customs enforcement implementation
+macro_market_official,fed_all_feeds,Federal Reserve - RSS Feeds,https://www.federalreserve.gov/feeds/,2,88,FOMC speeches liquidity rates
+macro_market_official,bls_feeds,BLS - RSS Feeds,https://www.bls.gov/feed/,2,82,CPI jobs wages
+macro_market_official,census_economic_indicators,Census - Economic Indicators,https://www.census.gov/about/contact-us/feeds.html,3,75,Retail sales trade inventories
+macro_market_official,bea_data,BEA - Data,https://www.bea.gov/data,3,76,GDP PCE trade balance
+news_validation,ap_top,AP News,https://apnews.com/,3,75,Wire confirmation
+news_validation,reuters_world,Reuters - World,https://www.reuters.com/world/,3,78,Global confirmation via RSS.app
+news_validation,reuters_markets,Reuters - Markets,https://www.reuters.com/markets/,3,78,Market confirmation via RSS.app
+news_validation,cnn_politics,CNN Politics,https://www.cnn.com/politics,4,62,US political narrative
+news_validation,cnn_business,CNN Business,https://www.cnn.com/business,4,62,Business narrative
+news_validation,cnbc_economy,CNBC Economy,https://www.cnbc.com/economy/,3,68,Trader-facing macro
+news_validation,cnbc_markets,CNBC Markets,https://www.cnbc.com/markets/,3,68,Market reaction
+market_reaction,forexlive,ForexLive,https://www.forexlive.com/,4,62,Fast FX/yields/macro
+market_reaction,investing_news,Investing.com News,https://www.investing.com/news/,4,55,Retail market velocity
+market_reaction,nasdaq_news,Nasdaq News,https://www.nasdaq.com/news-and-insights,4,56,Equity/tech framing
+market_reaction,barchart_news,Barchart News,https://www.barchart.com/news,5,52,Commodities futures
+market_reaction,oilprice,OilPrice,https://oilprice.com/,5,50,Energy geopolitics
+market_reaction,zerohedge,ZeroHedge,https://www.zerohedge.com/,5,35,Narrative velocity only
+china_global_trade,mofcom_china,China MOFCOM,http://english.mofcom.gov.cn/,3,78,Official Chinese trade response
+china_global_trade,china_customs,China Customs,http://english.customs.gov.cn/,4,68,Customs implementation
+china_global_trade,scmp_china_economy,SCMP - China Economy,https://www.scmp.com/economy/china-economy,4,58,China economy interpretation
+china_global_trade,nikkei_asia,Nikkei Asia,https://asia.nikkei.com/,4,55,Asia supply chain
+china_global_trade,global_times,Global Times,https://www.globaltimes.cn/,5,40,Chinese narrative velocity
+

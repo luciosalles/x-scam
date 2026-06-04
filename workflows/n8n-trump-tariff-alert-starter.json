@@ -1,0 +1,165 @@
+{
+  "name": "Trump Tariff Alert System - Starter",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.feedUrl}}"
+      },
+      "id": "rss-read",
+      "name": "RSS Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [520, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const feeds = [\n  { sourceId: 'whitehouse_presidential_actions', layer: 'official_primary', weight: 100, feedUrl: 'https://www.whitehouse.gov/presidential-actions/feed/' },\n  { sourceId: 'whitehouse_briefing_room', layer: 'official_primary', weight: 95, feedUrl: 'https://www.whitehouse.gov/briefing-room/feed/' },\n  { sourceId: 'fed_all_feeds', layer: 'macro_market_official', weight: 88, feedUrl: 'https://www.federalreserve.gov/feeds/press_all.xml' },\n  { sourceId: 'google_trump_tariff_china', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=Trump+tariff+China&hl=en-US&gl=US&ceid=US:en' }\n];\nreturn feeds.map(feed => ({ json: feed }));"
+      },
+      "id": "feed-list",
+      "name": "Feed List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const j = item.json;\n  const title = j.title || '';\n  const summary = j.contentSnippet || j.content || j.description || '';\n  const text = `${title} ${summary}`.toLowerCase();\n  const critical = ['tariff', 'tariffs', 'duties', 'section 301', 'section 232', 'executive order', 'proclamation', 'retaliation', 'trade war'];\n  const countries = ['china', 'mexico', 'canada', 'european union', 'eu', 'japan', 'south korea', 'taiwan', 'brazil', 'india'];\n  const channels = ['semiconductor', 'chips', 'autos', 'steel', 'aluminum', 'copper', 'oil', 'rare earths', 'supply chain', 'exports', 'imports'];\n  const soft = ['considering', 'may', 'could', 'proposal', 'discussion', 'rumor', 'sources say', 'draft'];\n  const count = arr => arr.filter(term => text.includes(term)).length;\n  let score = 30;\n  score += Math.min(count(critical), 2) * 28;\n  score += Math.min(count(countries), 2) * 16;\n  score += Math.min(count(channels), 2) * 12;\n  score -= Math.min(count(soft), 2) * 8;\n  score = Math.max(0, Math.min(100, score));\n  let alertLevel = 'GREEN';\n  if (score >= 78) alertLevel = 'RED';\n  else if (score >= 60) alertLevel = 'ORANGE';\n  else if (score >= 40) alertLevel = 'YELLOW';\n  return { json: { ...j, normalizedTitle: title.trim(), summary: summary.trim(), preScore: score, preAlertLevel: alertLevel } };\n});"
+      },
+      "id": "pre-score",
+      "name": "Pre-score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "orange-or-red",
+              "leftValue": "={{$json.preScore}}",
+              "rightValue": 60,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-alert",
+      "name": "IF Alert Worthy",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1000, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.TELEGRAM_CHAT_ID}}",
+        "text": "={{$json.preAlertLevel + ' | Tariff Watch\\nScore: ' + $json.preScore + '/100\\nHeadline: ' + $json.normalizedTitle + '\\nLink: ' + $json.link + '\\n\\nMarket bias: use AI classifier node here before paid launch.'}}"
+      },
+      "id": "telegram",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1240, -100],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_WITH_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Feed List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feed List": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Pre-score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pre-score": {
+      "main": [
+        [
+          {
+            "node": "IF Alert Worthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Alert Worthy": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-06-04T00:00:00.000Z",
+  "versionId": "starter"
+}
+

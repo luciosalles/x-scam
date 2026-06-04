@@ -1,0 +1,330 @@
+{
+  "product": "Trump Tariff Alert System",
+  "updated": "2026-06-04",
+  "layers": [
+    {
+      "id": "official_primary",
+      "name": "Official Primary Sources",
+      "priority": 1,
+      "defaultWeight": 100,
+      "description": "Fontes oficiais com maior impacto regulatorio. Estas devem disparar alerta mesmo com menos corroboracao.",
+      "feeds": [
+        {
+          "id": "whitehouse_presidential_actions",
+          "name": "White House - Presidential Actions",
+          "url": "https://www.whitehouse.gov/presidential-actions/",
+          "rssCandidate": "https://www.whitehouse.gov/presidential-actions/feed/",
+          "method": "native_or_rss_app",
+          "marketUse": "Executive orders, proclamations, tariff actions",
+          "weight": 100
+        },
+        {
+          "id": "whitehouse_briefing_room",
+          "name": "White House - Briefing Room",
+          "url": "https://www.whitehouse.gov/briefing-room/",
+          "rssCandidate": "https://www.whitehouse.gov/briefing-room/feed/",
+          "method": "native_or_rss_app",
+          "marketUse": "Official statements, fact sheets, remarks",
+          "weight": 95
+        },
+        {
+          "id": "ustr_press_office",
+          "name": "USTR - Press Office",
+          "url": "https://ustr.gov/about-us/policy-offices/press-office",
+          "method": "rss_app",
+          "marketUse": "Section 301, trade negotiations, tariff reviews",
+          "weight": 100
+        },
+        {
+          "id": "federal_register_search_tariff",
+          "name": "Federal Register - Tariff Search",
+          "url": "https://www.federalregister.gov/documents/search?conditions%5Bterm%5D=tariff",
+          "apiCandidate": "https://www.federalregister.gov/api/v1/documents.json?conditions%5Bterm%5D=tariff&order=newest",
+          "method": "api_or_rss_app",
+          "marketUse": "Legal notices, rules, proclamations, implementation details",
+          "weight": 98
+        },
+        {
+          "id": "treasury_press",
+          "name": "U.S. Treasury - Press Releases",
+          "url": "https://home.treasury.gov/news/press-releases",
+          "method": "rss_app",
+          "marketUse": "Sanctions, fiscal actions, financial restrictions",
+          "weight": 90
+        },
+        {
+          "id": "ofac_recent_actions",
+          "name": "OFAC - Recent Actions",
+          "url": "https://ofac.treasury.gov/recent-actions",
+          "method": "rss_app",
+          "marketUse": "Sanctions affecting commodities, shipping, banks, geopolitics",
+          "weight": 88
+        },
+        {
+          "id": "commerce_news",
+          "name": "Department of Commerce - News",
+          "url": "https://www.commerce.gov/news",
+          "method": "rss_app",
+          "marketUse": "Trade, industry, export controls, semiconductor restrictions",
+          "weight": 86
+        },
+        {
+          "id": "cbp_newsroom",
+          "name": "CBP - Newsroom",
+          "url": "https://www.cbp.gov/newsroom",
+          "method": "rss_app",
+          "marketUse": "Import enforcement, customs implementation",
+          "weight": 82
+        }
+      ]
+    },
+    {
+      "id": "macro_market_official",
+      "name": "Official Macro and Market Data",
+      "priority": 2,
+      "defaultWeight": 80,
+      "description": "Dados macro oficiais que mudam regime de mercado ou amplificam impacto de tarifas.",
+      "feeds": [
+        {
+          "id": "fed_all_feeds",
+          "name": "Federal Reserve - RSS Feeds",
+          "url": "https://www.federalreserve.gov/feeds/",
+          "method": "native",
+          "marketUse": "FOMC, speeches, rates, liquidity",
+          "weight": 88
+        },
+        {
+          "id": "bls_feeds",
+          "name": "BLS - RSS Feeds",
+          "url": "https://www.bls.gov/feed/",
+          "method": "native",
+          "marketUse": "CPI, jobs, wages, labor shock",
+          "weight": 82
+        },
+        {
+          "id": "census_economic_indicators",
+          "name": "Census - Economic Indicators",
+          "url": "https://www.census.gov/about/contact-us/feeds.html",
+          "method": "native",
+          "marketUse": "Retail sales, trade, inventories, housing",
+          "weight": 75
+        },
+        {
+          "id": "bea_data",
+          "name": "BEA - Data",
+          "url": "https://www.bea.gov/data",
+          "method": "rss_app_or_api",
+          "marketUse": "GDP, PCE, trade balance, income",
+          "weight": 76
+        },
+        {
+          "id": "atlanta_fed_gdpnow",
+          "name": "Atlanta Fed - GDPNow",
+          "url": "https://www.atlantafed.org/cqer/research/gdpnow",
+          "method": "rss_app",
+          "marketUse": "Growth expectation repricing",
+          "weight": 70
+        },
+        {
+          "id": "ny_fed_news",
+          "name": "New York Fed - News",
+          "url": "https://www.newyorkfed.org/newsevents",
+          "method": "rss_app",
+          "marketUse": "Market operations, liquidity, inflation expectations",
+          "weight": 74
+        }
+      ]
+    },
+    {
+      "id": "news_validation",
+      "name": "News Validation and Breaking Coverage",
+      "priority": 3,
+      "defaultWeight": 65,
+      "description": "Fontes jornalisticas para confirmar, contextualizar e medir velocidade narrativa.",
+      "feeds": [
+        {
+          "id": "ap_top",
+          "name": "AP News",
+          "url": "https://apnews.com/",
+          "rssCandidate": "https://apnews.com/index.rss",
+          "method": "native_if_available_or_rss_app",
+          "marketUse": "Wire confirmation",
+          "weight": 75
+        },
+        {
+          "id": "reuters_world",
+          "name": "Reuters - World",
+          "url": "https://www.reuters.com/world/",
+          "method": "rss_app",
+          "marketUse": "Wire confirmation and global reaction",
+          "weight": 78
+        },
+        {
+          "id": "reuters_markets",
+          "name": "Reuters - Markets",
+          "url": "https://www.reuters.com/markets/",
+          "method": "rss_app",
+          "marketUse": "Market reaction confirmation",
+          "weight": 78
+        },
+        {
+          "id": "cnn_politics",
+          "name": "CNN Politics",
+          "url": "https://www.cnn.com/politics",
+          "method": "rss_app",
+          "marketUse": "US political narrative",
+          "weight": 62
+        },
+        {
+          "id": "cnn_business",
+          "name": "CNN Business",
+          "url": "https://www.cnn.com/business",
+          "method": "rss_app",
+          "marketUse": "Business and market reaction",
+          "weight": 62
+        },
+        {
+          "id": "cnbc_economy",
+          "name": "CNBC Economy",
+          "url": "https://www.cnbc.com/economy/",
+          "method": "rss_app",
+          "marketUse": "Trader-facing macro reaction",
+          "weight": 68
+        },
+        {
+          "id": "cnbc_markets",
+          "name": "CNBC Markets",
+          "url": "https://www.cnbc.com/markets/",
+          "method": "rss_app",
+          "marketUse": "Market movement headlines",
+          "weight": 68
+        },
+        {
+          "id": "marketwatch_economy",
+          "name": "MarketWatch Economy",
+          "url": "https://www.marketwatch.com/economy-politics",
+          "method": "rss_app",
+          "marketUse": "Retail/institutional market framing",
+          "weight": 60
+        }
+      ]
+    },
+    {
+      "id": "market_reaction",
+      "name": "Market Reaction and Trader Velocity",
+      "priority": 4,
+      "defaultWeight": 55,
+      "description": "Fontes que indicam reacao rapida, mas nao devem ser tratadas como verdade isolada.",
+      "feeds": [
+        {
+          "id": "forexlive",
+          "name": "ForexLive",
+          "url": "https://www.forexlive.com/",
+          "method": "rss_app",
+          "marketUse": "FX, yields, fast macro headlines",
+          "weight": 62
+        },
+        {
+          "id": "investing_news",
+          "name": "Investing.com News",
+          "url": "https://www.investing.com/news/",
+          "method": "rss_app",
+          "marketUse": "Retail trader reaction and broad markets",
+          "weight": 55
+        },
+        {
+          "id": "nasdaq_news",
+          "name": "Nasdaq News",
+          "url": "https://www.nasdaq.com/news-and-insights",
+          "method": "rss_app",
+          "marketUse": "Equity/tech framing",
+          "weight": 56
+        },
+        {
+          "id": "barchart_news",
+          "name": "Barchart News",
+          "url": "https://www.barchart.com/news",
+          "method": "rss_app",
+          "marketUse": "Commodities and futures reaction",
+          "weight": 52
+        },
+        {
+          "id": "oilprice",
+          "name": "OilPrice",
+          "url": "https://oilprice.com/",
+          "method": "rss_app",
+          "marketUse": "Energy/geopolitical shock channel",
+          "weight": 50
+        },
+        {
+          "id": "zerohedge",
+          "name": "ZeroHedge",
+          "url": "https://www.zerohedge.com/",
+          "method": "rss_app",
+          "marketUse": "Narrative velocity only; low truth weight",
+          "weight": 35
+        }
+      ]
+    },
+    {
+      "id": "china_global_trade",
+      "name": "China and Global Trade Response",
+      "priority": 5,
+      "defaultWeight": 58,
+      "description": "Fontes para reacao internacional, retaliacao, supply chain e narrativa chinesa.",
+      "feeds": [
+        {
+          "id": "mofcom_china",
+          "name": "China MOFCOM",
+          "url": "http://english.mofcom.gov.cn/",
+          "method": "rss_app",
+          "marketUse": "Official Chinese trade response",
+          "weight": 78
+        },
+        {
+          "id": "china_customs",
+          "name": "China Customs",
+          "url": "http://english.customs.gov.cn/",
+          "method": "rss_app",
+          "marketUse": "Customs/import-export implementation",
+          "weight": 68
+        },
+        {
+          "id": "scmp_china_economy",
+          "name": "SCMP - China Economy",
+          "url": "https://www.scmp.com/economy/china-economy",
+          "method": "rss_app",
+          "marketUse": "China economy and policy interpretation",
+          "weight": 58
+        },
+        {
+          "id": "nikkei_asia",
+          "name": "Nikkei Asia",
+          "url": "https://asia.nikkei.com/",
+          "method": "rss_app",
+          "marketUse": "Asia supply chain and trade response",
+          "weight": 55
+        },
+        {
+          "id": "global_times",
+          "name": "Global Times",
+          "url": "https://www.globaltimes.cn/",
+          "method": "rss_app",
+          "marketUse": "Chinese narrative velocity; lower confidence",
+          "weight": 40
+        }
+      ]
+    }
+  ],
+  "googleNewsQueries": [
+    "https://news.google.com/rss/search?q=Trump+tariff+China&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=USTR+Section+301+tariff&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=White+House+tariff+Mexico&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=reciprocal+tariffs+Trump&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=China+retaliation+tariffs+US&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=steel+aluminum+copper+tariffs+United+States&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=semiconductor+tariff+export+controls+China&hl=en-US&gl=US&ceid=US:en",
+    "https://news.google.com/rss/search?q=autos+tariff+Mexico+Canada+US&hl=en-US&gl=US&ceid=US:en"
+  ]
+}
+
