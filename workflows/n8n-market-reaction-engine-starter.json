@@ -22,13 +22,39 @@
     },
     {
       "parameters": {
-        "jsCode": "const url = 'https://stooq.com/q/l/?s=es.f+nq.f+gc.f+dx.f&f=sd2t2ohlcv&h&e=csv';\nconst csv = await $httpRequest({ method: 'GET', url, headers: { 'User-Agent': 'Mozilla/5.0' } });\nif (!csv || typeof csv !== 'string') return [];\nconst lines = csv.trim().split(/\\r?\\n/);\nconst rows = lines.slice(1).map(line => line.split(','));\nconst labels = {\n  'ES.F': 'ES',\n  'NQ.F': 'NQ',\n  'GC.F': 'Gold',\n  'DX.F': 'DXY'\n};\nconst quotes = rows\n  .filter(row => row.length >= 7 && row[1] !== 'N/D')\n  .map(row => {\n    const [symbol, date, time, open, high, low, close] = row;\n    const openNum = Number(open);\n    const closeNum = Number(close);\n    const pctFromOpen = openNum ? ((closeNum - openNum) / openNum) * 100 : 0;\n    return {\n      symbol,\n      label: labels[symbol] || symbol,\n      date,\n      time,\n      open: openNum,\n      high: Number(high),\n      low: Number(low),\n      close: closeNum,\n      pctFromOpen: Math.round(pctFromOpen * 100) / 100\n    };\n  });\nif (!quotes.length) return [];\nconst by = Object.fromEntries(quotes.map(q => [q.label, q]));\nlet score = 0;\nconst reasons = [];\nconst es = by.ES;\nconst nq = by.NQ;\nconst dxy = by.DXY;\nconst gold = by.Gold;\nif (es?.pctFromOpen <= -0.4) { score += 25; reasons.push(`ES weak ${es.pctFromOpen}%`); }\nif (es?.pctFromOpen <= -0.8) score += 20;\nif (nq?.pctFromOpen <= -0.6) { score += 25; reasons.push(`NQ weak ${nq.pctFromOpen}%`); }\nif (nq?.pctFromOpen <= -1.2) score += 20;\nif (dxy?.pctFromOpen >= 0.15) { score += 15; reasons.push(`DXY firm ${dxy.pctFromOpen}%`); }\nif (dxy?.pctFromOpen >= 0.35) score += 10;\nif (gold?.pctFromOpen >= 0.3) { score += 15; reasons.push(`Gold bid ${gold.pctFromOpen}%`); }\nif (gold?.pctFromOpen >= 0.7) score += 10;\nconst equitiesRiskOff = (es?.pctFromOpen <= -0.4 ? 1 : 0) + (nq?.pctFromOpen <= -0.6 ? 1 : 0);\nconst safeHavenConfirm = (dxy?.pctFromOpen >= 0.15 ? 1 : 0) + (gold?.pctFromOpen >= 0.3 ? 1 : 0);\nif (equitiesRiskOff >= 1 && safeHavenConfirm >= 1) { score += 20; reasons.push('Risk-off confluence'); }\nif (equitiesRiskOff === 2) { score += 15; reasons.push('ES and NQ both weak'); }\nlet direction = 'neutral';\nif (score >= 85) direction = 'risk_off';\nlet riskOnScore = 0;\nconst riskOnReasons = [];\nif (es?.pctFromOpen >= 0.45) { riskOnScore += 25; riskOnReasons.push(`ES strong ${es.pctFromOpen}%`); }\nif (nq?.pctFromOpen >= 0.65) { riskOnScore += 25; riskOnReasons.push(`NQ strong ${nq.pctFromOpen}%`); }\nif (dxy?.pctFromOpen <= -0.15) { riskOnScore += 15; riskOnReasons.push(`DXY softer ${dxy.pctFromOpen}%`); }\nif (gold?.pctFromOpen <= -0.3) { riskOnScore += 10; riskOnReasons.push(`Gold softer ${gold.pctFromOpen}%`); }\nif ((es?.pctFromOpen >= 0.45 || nq?.pctFromOpen >= 0.65) && dxy?.pctFromOpen <= -0.15) riskOnScore += 20;\nif (riskOnScore > score) {\n  score = riskOnScore;\n  direction = score >= 85 ? 'risk_on' : 'neutral';\n  reasons.splice(0, reasons.length, ...riskOnReasons);\n}\nscore = Math.min(140, score);\nconst staticData = $getWorkflowStaticData('global');\nconst now = Date.now();\nconst cooldownMs = 15 * 60 * 1000;\nconst key = `${direction}|${quotes.map(q => `${q.label}:${Math.round(q.pctFromOpen * 10) / 10}`).join('|')}`;\nif (direction === 'neutral' || score < 85) return [];\nif (staticData.lastAlertKey === key && now - (staticData.lastAlertAt || 0) < cooldownMs) return [];\nstaticData.lastAlertKey = key;\nstaticData.lastAlertAt = now;\nconst quoteLines = quotes.map(q => `${q.label}: ${q.close} (${q.pctFromOpen}%)`).join('\\n');\nreturn [{\n  json: {\n    direction,\n    score,\n    quoteLines,\n    reasons: reasons.join('; '),\n    source: 'Stooq delayed CSV',\n    generatedAt: new Date().toISOString(),\n    note: 'US10Y is intentionally not used until a reliable intraday source is configured.'\n  }\n}];"
+        "url": "https://stooq.com/q/l/?s=es.f+nq.f+gc.f+dx.f&f=sd2t2ohlcv&h&e=csv",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
       },
-      "id": "market-snapshot",
-      "name": "Fetch And Score Market Snapshot",
+      "id": "fetch-market-csv",
+      "name": "Fetch Market CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const csv = $json.data || $json.body || $json;\nif (!csv || typeof csv !== 'string') return [];\nconst lines = csv.trim().split(/\\r?\\n/);\nconst rows = lines.slice(1).map(line => line.split(','));\nconst labels = {\n  'ES.F': 'ES',\n  'NQ.F': 'NQ',\n  'GC.F': 'Gold',\n  'DX.F': 'DXY'\n};\nconst quotes = rows\n  .filter(row => row.length >= 7 && row[1] !== 'N/D')\n  .map(row => {\n    const [symbol, date, time, open, high, low, close] = row;\n    const openNum = Number(open);\n    const closeNum = Number(close);\n    const pctFromOpen = openNum ? ((closeNum - openNum) / openNum) * 100 : 0;\n    return {\n      symbol,\n      label: labels[symbol] || symbol,\n      date,\n      time,\n      open: openNum,\n      high: Number(high),\n      low: Number(low),\n      close: closeNum,\n      pctFromOpen: Math.round(pctFromOpen * 100) / 100\n    };\n  });\nif (!quotes.length) return [];\nconst by = Object.fromEntries(quotes.map(q => [q.label, q]));\nlet score = 0;\nconst reasons = [];\nconst es = by.ES;\nconst nq = by.NQ;\nconst dxy = by.DXY;\nconst gold = by.Gold;\nif (es?.pctFromOpen <= -0.4) { score += 25; reasons.push(`ES weak ${es.pctFromOpen}%`); }\nif (es?.pctFromOpen <= -0.8) score += 20;\nif (nq?.pctFromOpen <= -0.6) { score += 25; reasons.push(`NQ weak ${nq.pctFromOpen}%`); }\nif (nq?.pctFromOpen <= -1.2) score += 20;\nif (dxy?.pctFromOpen >= 0.15) { score += 15; reasons.push(`DXY firm ${dxy.pctFromOpen}%`); }\nif (dxy?.pctFromOpen >= 0.35) score += 10;\nif (gold?.pctFromOpen >= 0.3) { score += 15; reasons.push(`Gold bid ${gold.pctFromOpen}%`); }\nif (gold?.pctFromOpen >= 0.7) score += 10;\nconst equitiesRiskOff = (es?.pctFromOpen <= -0.4 ? 1 : 0) + (nq?.pctFromOpen <= -0.6 ? 1 : 0);\nconst safeHavenConfirm = (dxy?.pctFromOpen >= 0.15 ? 1 : 0) + (gold?.pctFromOpen >= 0.3 ? 1 : 0);\nif (equitiesRiskOff >= 1 && safeHavenConfirm >= 1) { score += 20; reasons.push('Risk-off confluence'); }\nif (equitiesRiskOff === 2) { score += 15; reasons.push('ES and NQ both weak'); }\nlet direction = 'neutral';\nif (score >= 85) direction = 'risk_off';\nlet riskOnScore = 0;\nconst riskOnReasons = [];\nif (es?.pctFromOpen >= 0.45) { riskOnScore += 25; riskOnReasons.push(`ES strong ${es.pctFromOpen}%`); }\nif (nq?.pctFromOpen >= 0.65) { riskOnScore += 25; riskOnReasons.push(`NQ strong ${nq.pctFromOpen}%`); }\nif (dxy?.pctFromOpen <= -0.15) { riskOnScore += 15; riskOnReasons.push(`DXY softer ${dxy.pctFromOpen}%`); }\nif (gold?.pctFromOpen <= -0.3) { riskOnScore += 10; riskOnReasons.push(`Gold softer ${gold.pctFromOpen}%`); }\nif ((es?.pctFromOpen >= 0.45 || nq?.pctFromOpen >= 0.65) && dxy?.pctFromOpen <= -0.15) riskOnScore += 20;\nif (riskOnScore > score) {\n  score = riskOnScore;\n  direction = score >= 85 ? 'risk_on' : 'neutral';\n  reasons.splice(0, reasons.length, ...riskOnReasons);\n}\nscore = Math.min(140, score);\nconst staticData = $getWorkflowStaticData('global');\nconst now = Date.now();\nconst cooldownMs = 15 * 60 * 1000;\nconst key = `${direction}|${quotes.map(q => `${q.label}:${Math.round(q.pctFromOpen * 10) / 10}`).join('|')}`;\nif (direction === 'neutral' || score < 85) return [];\nif (staticData.lastAlertKey === key && now - (staticData.lastAlertAt || 0) < cooldownMs) return [];\nstaticData.lastAlertKey = key;\nstaticData.lastAlertAt = now;\nconst quoteLines = quotes.map(q => `${q.label}: ${q.close} (${q.pctFromOpen}%)`).join('\\n');\nreturn [{\n  json: {\n    direction,\n    score,\n    quoteLines,\n    reasons: reasons.join('; '),\n    source: 'Stooq delayed CSV',\n    generatedAt: new Date().toISOString(),\n    note: 'US10Y is intentionally not used until a reliable intraday source is configured.'\n  }\n}];"
+      },
+      "id": "score-market-snapshot",
+      "name": "Score Market Snapshot",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [260, 0]
+      "position": [520, 0]
     },
     {
       "parameters": {
@@ -57,7 +83,7 @@
       "name": "IF Market Alert Worthy",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [520, 0]
+      "position": [760, 0]
     },
     {
       "parameters": {
@@ -68,7 +94,7 @@
       "name": "Telegram Market Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [760, -100]
+      "position": [1000, -100]
     }
   ],
   "connections": {
@@ -76,14 +102,25 @@
       "main": [
         [
           {
-            "node": "Fetch And Score Market Snapshot",
+            "node": "Fetch Market CSV",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Fetch And Score Market Snapshot": {
+    "Fetch Market CSV": {
+      "main": [
+        [
+          {
+            "node": "Score Market Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Market Snapshot": {
       "main": [
         [
           {
