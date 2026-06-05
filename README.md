@@ -16,7 +16,9 @@ O projeto foi montado para funcionar primeiro como operacao no-code/low-code:
 - `config/alert_policy.json`: niveis de alerta, sensibilidade, palavras-chave e scoring
 - `prompts/impact_classifier.md`: prompt de IA para transformar noticia em alerta util
 - `workflows/n8n-trump-tariff-alert-starter.json`: workflow base importavel no n8n
+- `workflows/n8n-market-reaction-engine-starter.json`: workflow separado para ES/NQ/DXY/Gold
 - `docs/setup-rss-app-n8n.md`: passo a passo operacional
+- `docs/market-reaction-engine.md`: regras do fluxo de confirmacao de mercado
 - `scripts/score-event.js`: simulador local para calibrar score antes de automatizar
 
 ## Primeiro MVP
@@ -37,4 +39,3 @@ Bias: risk-off / NAS100 downside pressure
 Confidence: 82%
 Reason: White House + USTR mention tariff action against China.
 ```
-
