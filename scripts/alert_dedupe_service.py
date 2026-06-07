@@ -334,165 +334,1083 @@ def list_source_checks() -> dict:
 
 
 def dashboard_html() -> bytes:
-    return f"""<!doctype html>
+    return """<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Alert Dashboard</title>
+  <title>Macro Alerts Brasil</title>
   <style>
-    :root {{
+    :root {
       color-scheme: dark;
-      --bg: #101113;
-      --panel: #17191d;
-      --line: #30333a;
-      --text: #f1f3f5;
-      --muted: #9aa3ad;
-      --ok: #3ddc84;
-      --warn: #f5b84b;
-      --bad: #ff5c5c;
-      --accent: #4da3ff;
-    }}
-    * {{ box-sizing: border-box; }}
-    body {{
+      --bg: #0b0c0f;
+      --bg2: #111318;
+      --panel: rgba(20, 23, 28, 0.92);
+      --panel2: rgba(24, 27, 33, 0.96);
+      --line: rgba(255,255,255,0.08);
+      --line-strong: rgba(255,255,255,0.14);
+      --text: #f2f4f7;
+      --muted: #98a2ad;
+      --muted2: #6c7682;
+      --ok: #48d08f;
+      --warn: #f3b84c;
+      --bad: #ff5b61;
+      --accent: #7fb0ff;
+      --shadow: 0 22px 60px rgba(0,0,0,0.45);
+      --radius: 20px;
+      --radius-sm: 14px;
+      --sidebar: 260px;
+      --rail: 320px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
       margin: 0;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.05), transparent 26%),
+        radial-gradient(circle at top right, rgba(127,176,255,0.07), transparent 30%),
+        linear-gradient(180deg, #090a0d 0%, #0d1014 55%, #090a0d 100%);
       color: var(--text);
-      font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-    }}
-    header {{
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--line);
+      font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar) 1fr var(--rail);
+      min-height: 100vh;
+    }
+    .sidebar {
+      padding: 24px 18px;
+      border-right: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(17,19,24,0.98), rgba(13,15,19,0.94));
+      box-shadow: inset -1px 0 0 rgba(255,255,255,0.03);
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 22px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 4px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, rgba(255,196,60,0.18), rgba(255,196,60,0.06));
+      color: #ffc94d;
+      border: 1px solid rgba(255,196,60,0.25);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+      font-size: 20px;
+    }
+    .brand h1 {
+      margin: 0;
+      font: 700 15px/1.1 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .brand span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .nav { display: grid; gap: 10px; }
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      color: var(--text);
+      border: 1px solid transparent;
+      background: transparent;
+    }
+    .nav a.active {
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+      border-color: var(--line-strong);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .nav .tag {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 2px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+    }
+    .sidebar-card {
+      margin-top: auto;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      box-shadow: var(--shadow);
+    }
+    .sidebar-card .label {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+    .sidebar-card .title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+    .sidebar-card .sub {
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+    .sidebar-card button {
+      width: 100%;
+      border: 1px solid rgba(255,196,60,0.24);
+      background: linear-gradient(180deg, rgba(255,196,60,0.24), rgba(255,196,60,0.12));
+      color: #fff1cb;
+      font-weight: 700;
+      padding: 11px 14px;
+      border-radius: 13px;
+    }
+    .content {
+      min-width: 0;
+      overflow: auto;
+      padding: 20px 20px 24px;
+    }
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr minmax(260px, 380px) auto;
       gap: 16px;
       align-items: center;
-    }}
-    h1 {{ margin: 0; font-size: 20px; }}
-    main {{ padding: 20px 24px; display: grid; gap: 18px; }}
-    .filters, .grid, .sources {{ display: grid; gap: 12px; }}
-    .filters {{ grid-template-columns: repeat(4, minmax(120px, 1fr)); }}
-    input, select, button {{
-      background: #0d0f12;
+      margin-bottom: 18px;
+    }
+    .hero h2 {
+      margin: 0;
+      font: 800 clamp(26px, 2.8vw, 40px)/1.02 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: -0.03em;
+    }
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+    .searchbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(10,12,15,0.72);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .searchbox input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+    }
+    .status-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .status-pills .pill {
+      padding: 10px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 4px rgba(72,208,143,0.12);
+    }
+    .dot.warn {
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(243,184,76,0.12);
+    }
+    .dot.bad {
+      background: var(--bad);
+      box-shadow: 0 0 0 4px rgba(255,91,97,0.12);
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .stack { display: grid; gap: 18px; min-width: 0; }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(23,26,32,0.94), rgba(14,16,19,0.96));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-width: 0;
+    }
+    .card-head {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .card-head h3 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .card-head .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .main-alert {
+      padding: 22px 20px 20px;
+      display: grid;
+      gap: 18px;
+    }
+    .main-alert-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .alert-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .alert-type .flag {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--warn);
+      box-shadow: 0 0 0 4px rgba(243,184,76,0.12);
+    }
+    .alert-title {
+      margin: 2px 0 0;
+      font: 800 clamp(22px, 2vw, 30px)/1.08 ui-sans-serif, system-ui, sans-serif;
+      letter-spacing: -0.02em;
+      max-width: 24ch;
+    }
+    .alert-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 18px;
+      min-width: 0;
+    }
+    .alert-panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255,255,255,0.025);
+      min-width: 0;
+    }
+    .alert-panel h4 {
+      margin: 0 0 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+    }
+    .stat-row { display: grid; gap: 10px; }
+    .stat {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 12px;
+      align-items: start;
+      min-width: 0;
+    }
+    .stat strong {
+      font: 700 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.08em;
+      color: #dce2ea;
+      text-transform: uppercase;
+    }
+    .stat span {
+      color: var(--text);
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .market-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .market-tile {
+      padding: 16px 16px 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      min-width: 0;
+    }
+    .market-tile .symbol {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .market-tile .value {
+      font: 800 clamp(18px, 1.8vw, 24px)/1.02 ui-monospace, SFMono-Regular, Menlo, monospace;
+      margin-bottom: 6px;
+    }
+    .market-tile .delta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .market-tile .delta.up { color: var(--ok); }
+    .market-tile .delta.down { color: var(--bad); }
+    .list { display: grid; gap: 0; }
+    .list-item {
+      display: grid;
+      grid-template-columns: 78px 112px 1fr;
+      gap: 12px;
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      min-width: 0;
+    }
+    .list-item:first-child { border-top: 0; }
+    .list-time { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .list-tag {
+      color: var(--text);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .list-text { min-width: 0; }
+    .list-text .title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      overflow-wrap: anywhere;
+    }
+    .list-text .meta {
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+    .rail {
+      padding-top: 58px;
+      display: grid;
+      gap: 18px;
+    }
+    .rail .mini {
+      padding: 18px 18px 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .mini-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+    }
+    .mini-row strong { color: var(--text); font-size: 13px; }
+    .mono { font: 700 13px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .bad { color: var(--bad); }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .table-wrap {
+      overflow: auto;
+      max-height: 420px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      white-space: normal;
+    }
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      position: sticky;
+      top: 0;
+      background: rgba(14,16,19,0.94);
+      backdrop-filter: blur(8px);
+      z-index: 1;
+    }
+    td {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .pill.RED, .pill.RISK_OFF { color: var(--bad); }
+    .pill.ORANGE, .pill.YELLOW { color: var(--warn); }
+    .pill.RISK_ON, .pill.ok { color: var(--ok); }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2px 2px;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+    input, select, button {
+      background: rgba(10,12,15,0.88);
       border: 1px solid var(--line);
       color: var(--text);
-      padding: 10px 12px;
-      border-radius: 6px;
-    }}
-    button {{ cursor: pointer; background: #172033; border-color: #2d4671; }}
-    table {{ width: 100%; border-collapse: collapse; background: var(--panel); }}
-    th, td {{ text-align: left; padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }}
-    th {{ color: var(--muted); font-weight: 600; }}
-    .pill {{ display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--line); }}
-    .RED, .RISK_OFF, .error, .bad_content {{ color: var(--bad); }}
-    .ORANGE, .YELLOW, .warn {{ color: var(--warn); }}
-    .ok, .RISK_ON {{ color: var(--ok); }}
-    .muted {{ color: var(--muted); }}
-    a {{ color: var(--accent); }}
-    @media (max-width: 900px) {{ .filters {{ grid-template-columns: 1fr; }} table {{ font-size: 12px; }} }}
+      border-radius: 12px;
+      padding: 12px 14px;
+      font: inherit;
+      min-width: 0;
+    }
+    button {
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(127,176,255,0.18), rgba(127,176,255,0.1));
+      border-color: rgba(127,176,255,0.26);
+    }
+    .subtle-btn {
+      background: rgba(255,255,255,0.04);
+      border-color: var(--line);
+    }
+    @media (max-width: 1320px) {
+      .app { grid-template-columns: 86px 1fr; }
+      .rail { display: none; }
+      .sidebar .brand span, .sidebar .nav span, .sidebar .sidebar-card { display: none; }
+      .sidebar { padding: 18px 10px; }
+      .sidebar .nav a { justify-content: center; padding: 14px 10px; }
+      .sidebar .nav .tag { display: none; }
+      .sidebar .brand { justify-content: center; }
+    }
+    @media (max-width: 1040px) {
+      body { overflow: auto; }
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .topbar { grid-template-columns: 1fr; }
+      .status-pills { justify-content: flex-start; }
+      .workspace { grid-template-columns: 1fr; }
+      .market-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .alert-grid { grid-template-columns: 1fr; }
+      .filters { grid-template-columns: 1fr; }
+      .list-item { grid-template-columns: 72px 1fr; }
+      .list-item .list-tag { display: none; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>Alert Dashboard</h1>
-      <div class="muted">Historico, filtros e saude das fontes</div>
-    </div>
-    <button id="refresh">Refresh</button>
-  </header>
-  <main>
-    <section class="filters">
-      <select id="type">
-        <option value="">Todos os tipos</option>
-        <option value="news">News</option>
-        <option value="market">Market</option>
-        <option value="brazil_local">Brasil Local</option>
-      </select>
-      <select id="level">
-        <option value="">Todos os niveis</option>
-        <option>YELLOW</option>
-        <option>ORANGE</option>
-        <option>RED</option>
-        <option>RISK_ON</option>
-        <option>RISK_OFF</option>
-      </select>
-      <input id="q" placeholder="Buscar titulo, fonte, motivo">
-      <button id="checkSources">Checar fontes</button>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">?</div>
+        <div>
+          <h1>Macro Alerts</h1>
+          <span>Brasil | Market bias | Live monitoring</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <a class="active" href="/dashboard">Dashboard <span class="tag">Home</span></a>
+        <a href="/dashboard/alerts">Alert Feed <span class="tag">Live</span></a>
+        <a href="/dashboard/health">Health <span class="tag">OK</span></a>
+        <a href="/dashboard/history">History <span class="tag">DB</span></a>
+        <a href="/dashboard/integrations">Integrations <span class="tag">WS</span></a>
+        <a href="/dashboard/rtd">RTD Flow <span class="tag">Soon</span></a>
+      </nav>
+      <div class="sidebar-card">
+        <div class="label">Proximo passo</div>
+        <div class="title">Home shell first</div>
+        <p class="sub">Cards sem excesso, sem overlap, pronto para ligar dados reais depois.</p>
+        <button id="refresh">Refresh live</button>
+      </div>
+    </aside>
+
+    <section class="content">
+      <div class="topbar">
+        <div class="hero">
+          <h2>Dashboard</h2>
+          <p>Home enxuta para bias macro, fontes e alerta principal.</p>
+        </div>
+        <div class="searchbox">
+          <span style="color:var(--muted)">?</span>
+          <input id="q" placeholder="Buscar titulo, fonte, motivo">
+        </div>
+        <div class="status-pills">
+          <div class="pill"><span class="dot"></span><span>LIVE</span></div>
+          <div class="pill"><span class="dot warn"></span><span>SOURCES OK</span></div>
+          <div class="pill"><span class="dot bad"></span><span id="summaryState">RISK MONITOR</span></div>
+        </div>
+      </div>
+      <div class="toolbar" data-view="alerts history" style="margin:0 0 18px; padding:0;">
+        <div class="filters" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+          <div class="badge">Feed completo</div>
+          <div class="badge" id="alertsCount">0 alerts</div>
+          <div class="badge" id="alertsRed">0 red</div>
+          <div class="badge" id="alertsRecent">0 recentes</div>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <div class="stack">
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h3>Main Alert</h3>
+                <div class="sub">Alerta principal atual, sem ru?do de canal.</div>
+              </div>
+              <div class="badge" id="mainBadge">Aguardando sinal</div>
+            </div>
+            <div class="main-alert" id="mainAlert">
+              <div class="main-alert-top">
+                <div class="alert-type"><span class="flag"></span><span id="mainType">NO ALERT</span></div>
+                <div class="alert-meta">
+                  <span id="mainTime">-</span>
+                  <span class="badge" id="mainSeverity">-</span>
+                </div>
+              </div>
+              <div class="alert-title" id="mainTitle">Sem alerta principal no momento</div>
+              <div class="alert-grid">
+                <div class="alert-panel">
+                  <h4>Leituras</h4>
+                  <div class="stat-row">
+                    <div class="stat"><strong>Regime</strong><span id="mainRegime">-</span></div>
+                    <div class="stat"><strong>Tendencia</strong><span id="mainTendency">-</span></div>
+                    <div class="stat"><strong>Conviccao</strong><span id="mainConviction">-</span></div>
+                    <div class="stat"><strong>WIN</strong><span id="mainWin">-</span></div>
+                    <div class="stat"><strong>Dolar</strong><span id="mainDollar">-</span></div>
+                    <div class="stat"><strong>ES/NQ</strong><span id="mainUs">-</span></div>
+                  </div>
+                </div>
+                <div class="alert-panel">
+                  <h4>O que mudou</h4>
+                  <div class="stat-row">
+                    <div class="stat"><strong>Motivo</strong><span id="mainReason">-</span></div>
+                    <div class="stat"><strong>Confirmar</strong><span id="mainConfirm">-</span></div>
+                    <div class="stat"><strong>Invalidar</strong><span id="mainInvalidate">-</span></div>
+                    <div class="stat"><strong>Fonte</strong><span id="mainSource">-</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h3>Market Strip</h3>
+                <div class="sub">Quatro leituras-chave, visual limpo e compacto.</div>
+              </div>
+              <div class="badge">Bias snapshots</div>
+            </div>
+            <div class="main-alert" style="padding-top:16px;">
+              <div class="market-strip" id="marketStrip"></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h3>Recent Alerts</h3>
+                <div class="sub">Feed curto para validar qualidade sem poluir a Home.</div>
+              </div>
+              <div class="badge">Latest 8</div>
+            </div>
+            <div class="toolbar" style="padding:14px 18px 0;">
+              <div class="filters">
+                <select id="type">
+                  <option value="">Todos os tipos</option>
+                  <option value="news">News</option>
+                  <option value="market">Market</option>
+                  <option value="brazil_local">Brasil Local</option>
+                  <option value="bcb_direct">BCB Direct</option>
+                </select>
+                <select id="level">
+                  <option value="">Todos os niveis</option>
+                  <option>YELLOW</option>
+                  <option>ORANGE</option>
+                  <option>RED</option>
+                  <option>RISK_ON</option>
+                  <option>RISK_OFF</option>
+                </select>
+                <select id="regime">
+                  <option value="">Todos os regimes</option>
+                  <option>BR_LOCAL</option>
+                  <option>GLOBAL_RISK</option>
+                  <option>RISK_OFF</option>
+                  <option>RISK_ON</option>
+                </select>
+                <button id="checkSources" class="subtle-btn">Checar fontes</button>
+              </div>
+            </div>
+            <div class="list" id="alerts"></div>
+          </article>
+
+          <article class="card" data-history-card>
+            <div class="card-head">
+              <div>
+                <h3>Alert History</h3>
+                <div class="sub">Tabela tecnica para investigar o que disparou.</div>
+              </div>
+              <div class="badge">DB log</div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Hora</th><th>Tipo</th><th>Nivel</th><th>Regime</th><th>Tendencia</th><th>WIN</th><th>Titulo</th><th>Fonte</th>
+                  </tr>
+                </thead>
+                <tbody id="history"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <aside class="rail">
+          <article class="card mini">
+            <div class="card-head" style="padding:0 0 8px;border-bottom:0;">
+              <div>
+                <h3>System Rail</h3>
+                <div class="sub">Saude resumida sem ocupar a Home.</div>
+              </div>
+            </div>
+            <div class="mini-row"><strong>Sources</strong><span id="railSources" class="mono">-</span></div>
+            <div class="mini-row"><strong>Stale</strong><span id="railStale" class="mono">-</span></div>
+            <div class="mini-row"><strong>Last check</strong><span id="railCheck" class="mono">-</span></div>
+          </article>
+          <article class="card mini" data-health-card>
+            <div class="card-head" style="padding:0 0 8px;border-bottom:0;">
+              <div>
+                <h3>Health</h3>
+                <div class="sub">Falhas e latencia das fontes.</div>
+              </div>
+            </div>
+            <div id="sourcesMini" class="list"></div>
+          </article>
+          <article class="card mini">
+            <div class="card-head" style="padding:0 0 8px;border-bottom:0;">
+              <div>
+                <h3>View Modes</h3>
+                <div class="sub">Home, alerts, health, history, integrations, RTD.</div>
+              </div>
+            </div>
+            <div class="mini-row"><strong>Mode</strong><span class="pill ok">Home shell</span></div>
+            <div class="mini-row"><strong>RTD</strong><span class="pill warn">Separate page</span></div>
+            <div class="mini-row"><strong>Integrations</strong><span class="pill">Telegram / Discord</span></div>
+          </article>
+        </aside>
+      </div>
+
+      <div class="workspace" style="grid-template-columns:1fr; margin-top:18px;">
+        <article class="card">
+          <div class="card-head">
+            <div>
+              <h3>Sources</h3>
+              <div class="sub">Lista tecnica para validar o estado das fontes.</div>
+            </div>
+            <div class="badge">Live status</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Fonte</th><th>Tipo</th><th>Status</th><th>HTTP</th><th>Latencia</th><th>Detalhe</th></tr>
+              </thead>
+              <tbody id="sources"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
     </section>
-    <section>
-      <h2>Alertas</h2>
-      <table>
-        <thead>
-          <tr><th>Hora</th><th>Tipo</th><th>Nivel</th><th>Tendência real</th><th>Leitura WIN</th><th>Titulo / Regime</th><th>Fonte</th><th>Motivo</th></tr>
-        </thead>
-        <tbody id="alerts"></tbody>
-      </table>
-    </section>
-    <section>
-      <h2>Fontes</h2>
-      <table>
-        <thead>
-          <tr><th>Fonte</th><th>Tipo</th><th>Status</th><th>HTTP</th><th>Latencia</th><th>Detalhe</th></tr>
-        </thead>
-        <tbody id="sources"></tbody>
-      </table>
-    </section>
-  </main>
+  </div>
   <script>
     const $ = (id) => document.getElementById(id);
     const fmt = (ts) => ts ? new Date(ts * 1000).toLocaleString() : '-';
-    const levelLabel = (value) => ({{
+    const levelLabel = (value) => ({
       RED: 'Vermelho',
       ORANGE: 'Laranja',
       YELLOW: 'Amarelo',
-      RISK_ON: 'Viés de alta',
-      RISK_OFF: 'Viés de baixa'
-    }})[value] || value || '';
-    async function loadAlerts() {{
+      RISK_ON: 'Vi?s de alta',
+      RISK_OFF: 'Vi?s de baixa'
+    })[value] || value || '';
+    const esc = (value) => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]));
+    const first = (items) => (items && items.length ? items[0] : null);
+    const currentView = (() => {
+      const p = location.pathname.toLowerCase();
+      if (p.endsWith('/alerts')) return 'alerts';
+      if (p.endsWith('/health')) return 'health';
+      if (p.endsWith('/history')) return 'history';
+      if (p.endsWith('/integrations')) return 'integrations';
+      if (p.endsWith('/rtd')) return 'rtd';
+      return 'home';
+    })();
+    function applyView() {
+      const stackCards = Array.from(document.querySelectorAll('.stack > .card'));
+      const rail = document.querySelector('.rail');
+      const sourcesCard = document.querySelector('.content > .workspace + .workspace .card');
+      const search = document.querySelector('.searchbox');
+      const heroTitle = document.querySelector('.hero h2');
+      const heroSub = document.querySelector('.hero p');
+      const navs = Array.from(document.querySelectorAll('[data-nav]'));
+      const setCardVisibility = (predicate) => stackCards.forEach((card, idx) => { card.style.display = predicate(card, idx) ? '' : 'none'; });
+      const titleMap = {
+        home: ['Dashboard', 'Home enxuta para bias macro, fontes e alerta principal.'],
+        alerts: ['Alert Feed', 'Lista completa para depurar e acompanhar alertas.'],
+        health: ['Health', 'Saude das fontes, latencia e falhas.'],
+        history: ['History', 'Historico tecnico e dedupe.'],
+        integrations: ['Integrations', 'Telegram, Discord e testes de envio.'],
+        rtd: ['RTD Flow', 'Fluxo separado para scanner Profit RTD.']
+      };
+      const pair = titleMap[currentView] || titleMap.home;
+      heroTitle.textContent = pair[0];
+      heroSub.textContent = pair[1];
+      search.style.display = (currentView === 'alerts' || currentView === 'history') ? 'flex' : 'none';
+      navs.forEach(link => link.classList.toggle('active', link.getAttribute('data-nav') === currentView || (currentView === 'home' && link.getAttribute('data-nav') === 'home')));
+      if (currentView === 'home') {
+        setCardVisibility(() => true);
+        if (rail) rail.style.display = '';
+        if (sourcesCard) sourcesCard.style.display = '';
+      } else if (currentView === 'alerts') {
+        setCardVisibility((card, idx) => idx === 0 || idx === 1 || idx === 2 || idx === 3);
+        if (rail) rail.style.display = 'none';
+        if (sourcesCard) sourcesCard.style.display = 'none';
+      } else if (currentView === 'health') {
+        setCardVisibility((card, idx) => idx === 0 || idx === 4);
+        if (rail) rail.style.display = '';
+        if (sourcesCard) sourcesCard.style.display = '';
+      } else if (currentView === 'history') {
+        setCardVisibility((card, idx) => idx === 3);
+        if (rail) rail.style.display = 'none';
+        if (sourcesCard) sourcesCard.style.display = 'none';
+      } else if (currentView === 'integrations') {
+        setCardVisibility(() => false);
+        if (rail) rail.style.display = 'none';
+        if (sourcesCard) sourcesCard.style.display = 'none';
+        document.querySelector('.stack').insertAdjacentHTML('afterbegin', `
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h3>Onboarding</h3>
+                <div class="sub">Fluxo guiado para o usuario final conectar canais sem ver detalhe tecnico demais.</div>
+              </div>
+              <div class="badge">5 passos</div>
+            </div>
+            <div class="main-alert" style="gap:14px;">
+              <div class="alert-panel"><h4>1. Escolha o canal</h4><div class="stat-row"><div class="stat"><strong>Telegram</strong><span>Ideal para alerta rapido e mobile.</span></div><div class="stat"><strong>Discord</strong><span>Ideal para grupo tecnico e canal persistente.</span></div></div></div>
+              <div class="alert-panel"><h4>2. Conecte</h4><div class="stat-row"><div class="stat"><strong>Telegram</strong><span>Colar bot token e chat_id.</span></div><div class="stat"><strong>Discord</strong><span>Colar webhook URL do canal.</span></div></div></div>
+              <div class="alert-panel"><h4>3. Teste</h4><div class="stat-row"><div class="stat"><strong>Smoke test</strong><span>Enviar 1 alerta falso e confirmar entrega.</span></div></div></div>
+              <div class="alert-panel"><h4>4. Ajuste o ruido</h4><div class="stat-row"><div class="stat"><strong>Densidade</strong><span>Escolher agressivo, equilibrado ou ultra seletivo.</span></div></div></div>
+              <div class="alert-panel"><h4>5. Ative live</h4><div class="stat-row"><div class="stat"><strong>Go live</strong><span>Ligar o fluxo de producao depois que a entrega funcionar.</span></div></div></div>
+            </div>
+          </article>
+        `);
+      } else if (currentView === 'rtd') {
+        setCardVisibility(() => false);
+        if (rail) rail.style.display = 'none';
+        if (sourcesCard) sourcesCard.style.display = 'none';
+        document.querySelector('.stack').insertAdjacentHTML('afterbegin', `
+          <article class="card">
+            <div class="card-head">
+              <div>
+                <h3>RTD Flow</h3>
+                <div class="sub">Painel pronto para o scanner Profit RTD e leitura de micro-vies em tempo quase real.</div>
+              </div>
+              <div class="badge">Pipeline</div>
+            </div>
+            <div class="main-alert" style="gap:14px;">
+              <div class="market-strip" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+                <div class="market-tile"><div class="symbol">Estado</div><div class="value">Aguardando RTD</div><div class="delta">feed separado da Home</div></div>
+                <div class="market-tile"><div class="symbol">Buffer</div><div class="value">Parquet</div><div class="delta">historico e replay</div></div>
+                <div class="market-tile"><div class="symbol">Bias</div><div class="value">Neutro</div><div class="delta">sem scanner conectado</div></div>
+              </div>
+              <div class="alert-panel">
+                <h4>Arquitetura operacional</h4>
+                <div class="stat-row">
+                  <div class="stat"><strong>Input</strong><span>Profit RTD scanner e serie de ticks normalizada.</span></div>
+                  <div class="stat"><strong>Processing</strong><span>Delta detection, cache e agregacao de fluxo.</span></div>
+                  <div class="stat"><strong>Output</strong><span>Bias intraday, historico parquet e alertas derivados.</span></div>
+                </div>
+              </div>
+              <div class="alert-panel">
+                <h4>Checklist de produto</h4>
+                <div class="stat-row">
+                  <div class="stat"><strong>1</strong><span>Scanner RTD validado.</span></div>
+                  <div class="stat"><strong>2</strong><span>Buffer com ultimos ticks.</span></div>
+                  <div class="stat"><strong>3</strong><span>Feed pronto para dashboard e bias.</span></div>
+                </div>
+              </div>
+            </div>
+          </article>
+        `);
+      }
+    }
+
+    async function loadAlerts() {
       const params = new URLSearchParams();
       if ($('type').value) params.set('type', $('type').value);
       if ($('level').value) params.set('level', $('level').value);
+      if ($('regime').value) params.set('regime', $('regime').value);
       if ($('q').value) params.set('q', $('q').value);
       const res = await fetch('/api/alerts?' + params.toString());
       const data = await res.json();
-      $('alerts').innerHTML = data.alerts.map(a => `
+      const alerts = data.alerts || [];
+      renderAlerts(alerts);
+      renderHistory(alerts);
+      renderMain(alerts);
+      renderMarketStrip(alerts);
+    }
+
+    function renderMain(alerts) {
+      const main = first(alerts);
+      if (!main) {
+        $('mainBadge').textContent = 'Aguardando sinal';
+        $('mainType').textContent = 'NO ALERT';
+        $('mainTime').textContent = '-';
+        $('mainSeverity').textContent = '-';
+        $('mainTitle').textContent = 'Sem alerta principal no momento';
+        $('mainRegime').textContent = '-';
+        $('mainTendency').textContent = '-';
+        $('mainConviction').textContent = '-';
+        $('mainWin').textContent = '-';
+        $('mainDollar').textContent = '-';
+        $('mainUs').textContent = '-';
+        $('mainReason').textContent = '-';
+        $('mainConfirm').textContent = '-';
+        $('mainInvalidate').textContent = '-';
+        $('mainSource').textContent = '-';
+        $('summaryState').textContent = 'RISK MONITOR';
+        return;
+      }
+      const regime = main.regime || main.level || '-';
+      const tendency = main.tendency || main.direction || '-';
+      const conviction = main.conviction || main.confidence || '-';
+      $('mainBadge').textContent = (main.level || main.regime || 'SINAL').toString();
+      $('mainType').textContent = (main.alert_type || 'ALERT').toUpperCase();
+      $('mainTime').textContent = fmt(main.created_at);
+      $('mainSeverity').textContent = levelLabel(main.level || main.regime || '');
+      $('mainTitle').textContent = main.title || main.regime || '-';
+      $('mainRegime').textContent = regime;
+      $('mainTendency').textContent = tendency;
+      $('mainConviction').textContent = conviction;
+      $('mainWin').textContent = main.win_read || main.winPlan || '-';
+      $('mainDollar').textContent = main.dollar_read || main.dolar_read || '-';
+      $('mainUs').textContent = main.us_read || main.esnq_read || '-';
+      $('mainReason').textContent = main.reason || '-';
+      $('mainConfirm').textContent = main.confirm || main.confirm_text || main.confirmation || '-';
+      $('mainInvalidate').textContent = main.invalidate || main.invalidate_text || main.invalidar || '-';
+      $('mainSource').textContent = main.source || '-';
+      $('summaryState').textContent = (main.level || main.regime || 'RISK MONITOR').toString();
+    }
+
+    function renderAlerts(alerts) {
+      const recent = alerts.slice(0, 8);
+      $('alerts').innerHTML = recent.length ? recent.map(a => `
+        <div class="list-item">
+          <div class="list-time">${fmt(a.created_at)}</div>
+          <div class="list-tag">${esc(a.alert_type || a.level || a.regime || '')}</div>
+          <div class="list-text">
+            <div class="title">${esc(a.title || a.regime || 'Sem titulo')}</div>
+            <div class="meta">${esc(a.tendency || a.direction || '')}${a.source ? ' · ' + esc(a.source) : ''}${a.reason ? ' · ' + esc(a.reason) : ''}</div>
+          </div>
+        </div>
+      `).join('') : '<div class="list-item"><div class="list-time">-</div><div class="list-tag">-</div><div class="list-text"><div class="title">Sem alertas</div><div class="meta">Nenhum item recente retornou da API.</div></div></div>';
+    }
+
+    function renderMarketStrip(alerts) {
+      const market = alerts.find(a => String(a.alert_type || '').toLowerCase() === 'market') || first(alerts);
+      if (!market) {
+        $('marketStrip').innerHTML = `
+          <div class="market-tile"><div class="symbol">WIN</div><div class="value">-</div><div class="delta">Aguardando feed</div></div>
+          <div class="market-tile"><div class="symbol">Dolar</div><div class="value">-</div><div class="delta">Aguardando feed</div></div>
+          <div class="market-tile"><div class="symbol">ES / NQ</div><div class="value">-</div><div class="delta">Aguardando feed</div></div>
+          <div class="market-tile"><div class="symbol">DXY / Gold</div><div class="value">-</div><div class="delta">Aguardando feed</div></div>
+        `;
+        return;
+      }
+      const tone = (market.level || market.regime || '').toString();
+      const score = market.score != null ? `${market.score}` : '-';
+      const win = market.win_read || market.winPlan || '-';
+      const dollar = market.dollar_read || market.dolar_read || '-';
+      const us = market.us_read || market.esnq_read || '-';
+      const reason = market.reason || market.title || '-';
+      $('marketStrip').innerHTML = `
+        <div class="market-tile">
+          <div class="symbol">Regime</div>
+          <div class="value">${esc(market.regime || market.level || '-')}</div>
+          <div class="delta ${esc(tone)}">${esc(market.tendency || market.direction || market.conviction || '-')}</div>
+        </div>
+        <div class="market-tile">
+          <div class="symbol">Score</div>
+          <div class="value">${esc(score)}</div>
+          <div class="delta">Convicção ${esc(market.conviction || '-')}</div>
+        </div>
+        <div class="market-tile">
+          <div class="symbol">WIN</div>
+          <div class="value">${esc(win)}</div>
+          <div class="delta">Leitura principal</div>
+        </div>
+        <div class="market-tile">
+          <div class="symbol">Dolar / ES</div>
+          <div class="value">${esc(dollar)}</div>
+          <div class="delta">${esc(us)}</div>
+        </div>
+      `;
+      $('mainReason').textContent = reason;
+    }
+
+    function renderHistory(alerts) {
+      const rows = alerts.slice(0, 25);
+      const totals = {
+        total: alerts.length,
+        red: alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'RED' || String(a.level || a.regime || '').toUpperCase() === 'RISK_OFF').length,
+        orange: alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'ORANGE').length,
+        yellow: alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'YELLOW').length,
+      };
+      const topReason = alerts.find(a => a.reason)?.reason || 'Sem motivo forte nos registros recentes.';
+      const historyCard = document.querySelector('[data-history-card]');
+      if (historyCard && !document.getElementById('historySummary')) {
+        historyCard.insertAdjacentHTML('afterbegin', `
+          <div id="historySummary" style="padding: 16px 20px 0;">
+            <div class="market-strip" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+              <div class="market-tile"><div class="symbol">Total</div><div class="value" id="histTotal">0</div><div class="delta">alertas salvos</div></div>
+              <div class="market-tile"><div class="symbol">Red</div><div class="value" id="histRed">0</div><div class="delta down">sinais fortes</div></div>
+              <div class="market-tile"><div class="symbol">Orange / Yellow</div><div class="value" id="histSoft">0</div><div class="delta">ruido util</div></div>
+              <div class="market-tile"><div class="symbol">Ultimo motivo</div><div class="value" id="histReason" style="font-size:14px; line-height:1.2;">-</div><div class="delta">base para dedupe</div></div>
+            </div>
+          </div>
+        `);
+      }
+      if ($('histTotal')) $('histTotal').textContent = String(totals.total);
+      if ($('histRed')) $('histRed').textContent = String(totals.red);
+      if ($('histSoft')) $('histSoft').textContent = String(totals.orange + totals.yellow);
+      if ($('histReason')) $('histReason').textContent = topReason.length > 60 ? topReason.slice(0, 60) + '?' : topReason;
+      $('history').innerHTML = rows.map(a => `
         <tr>
-          <td>${{fmt(a.created_at)}}</td>
-          <td>${{a.alert_type || ''}}</td>
-          <td><span class="pill ${{a.level || a.regime || ''}}">${{levelLabel(a.level || a.regime || '')}}</span></td>
-          <td>${{escapeHtml(a.tendency || a.regime || '')}}${{a.conviction ? `<br><span class="muted">Convicção: ${{escapeHtml(a.conviction)}}</span>` : ''}}</td>
-          <td>${{escapeHtml(a.win_read || a.winPlan || '')}}</td>
-          <td>${{escapeHtml(a.title || a.regime || '')}}${{a.link ? `<br><a href="${{a.link}}" target="_blank">link</a>` : ''}}</td>
-          <td>${{escapeHtml(a.source || '')}}</td>
-          <td>${{escapeHtml(a.reason || '')}}</td>
+          <td>${fmt(a.created_at)}</td>
+          <td>${esc(a.alert_type || '')}</td>
+          <td><span class="pill ${esc(a.level || a.regime || '')}">${esc(levelLabel(a.level || a.regime || ''))}</span></td>
+          <td>${esc(a.regime || '')}</td>
+          <td>${esc(a.tendency || a.direction || '')}</td>
+          <td>${esc(a.win_read || a.winPlan || '')}</td>
+          <td>${esc(a.title || '')}</td>
+          <td>${esc(a.source || '')}</td>
         </tr>
-      `).join('');
-    }}
-    async function loadSources(runCheck = false) {{
+      `).join('') || '<tr><td colspan="8" class="muted">Sem registros</td></tr>';
+    }
+
+    async function loadSources(runCheck = false) {
       const res = await fetch(runCheck ? '/api/source-health?refresh=1' : '/api/source-health');
       const data = await res.json();
-      $('sources').innerHTML = data.sources.map(s => `
+      const sources = data.sources || [];
+      const okSources = sources.filter(s => String(s.status || '').toLowerCase() === 'ok');
+      const staleSources = sources.filter(s => String(s.status || '').toLowerCase() !== 'ok');
+      const worstLatency = sources.reduce((max, s) => Math.max(max, Number(s.latency_ms || 0)), 0);
+      $('sources').innerHTML = sources.map(s => `
         <tr>
-          <td>${{escapeHtml(s.source_id)}}</td>
-          <td>${{escapeHtml(s.source_type || '')}}</td>
-          <td class="${{s.status}}">${{escapeHtml(s.status || '')}}</td>
-          <td>${{s.status_code || ''}}</td>
-          <td>${{s.latency_ms ?? ''}}ms</td>
-          <td>${{escapeHtml(s.detail || '')}}</td>
+          <td>${esc(s.source_id)}</td>
+          <td>${esc(s.source_type || '')}</td>
+          <td class="${esc(s.status || '')}">${esc(s.status || '')}</td>
+          <td>${s.status_code || ''}</td>
+          <td>${s.latency_ms ?? ''}ms</td>
+          <td>${esc(s.detail || '')}</td>
         </tr>
-      `).join('');
-    }}
-    function escapeHtml(value) {{
-      return String(value ?? '').replace(/[&<>"']/g, ch => ({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}}[ch]));
-    }}
-    $('refresh').onclick = () => {{ loadAlerts(); loadSources(); }};
+      `).join('') || '<tr><td colspan="6" class="muted">Sem fontes</td></tr>';
+
+      const healthTitle = currentView === 'health' ? 'Saude das fontes' : 'Health';
+      const healthSub = currentView === 'health' ? 'Falhas primeiro, stale data depois, latencia em terceiro.' : 'Falhas e latencia das fontes.';
+      const healthCard = document.querySelector('[data-health-card]');
+      if (healthCard) {
+        healthCard.querySelector('h3').textContent = healthTitle;
+        healthCard.querySelector('.sub').textContent = healthSub;
+      }
+      $('sourcesMini').innerHTML = `
+        <div class="alert-panel" style="padding:14px;">
+          <h4>Resumo</h4>
+          <div class="stat-row">
+            <div class="mini-row"><strong>OK</strong><span class="ok">${okSources.length}</span></div>
+            <div class="mini-row"><strong>Stale / falha</strong><span class="${staleSources.length ? 'bad' : 'ok'}">${staleSources.length}</span></div>
+            <div class="mini-row"><strong>Pior latencia</strong><span class="mono">${worstLatency}ms</span></div>
+          </div>
+        </div>
+        ${staleSources.slice(0, 4).map(s => `
+          <div class="alert-panel" style="padding:14px; border-color: rgba(255,91,97,0.18);">
+            <h4>${esc(s.source_id)}</h4>
+            <div class="stat-row">
+              <div class="mini-row"><strong>Status</strong><span class="${esc(s.status || '')}">${esc(s.status || '')}</span></div>
+              <div class="mini-row"><strong>Latencia</strong><span class="mono">${s.latency_ms ?? '-'}ms</span></div>
+              <div class="mini-row"><strong>Detalhe</strong><span>${esc(s.detail || '')}</span></div>
+            </div>
+          </div>
+        `).join('') || '<div class="alert-panel" style="padding:14px;"><h4>Sem falhas</h4><div class="meta">Todas as fontes principais responderam.</div></div>'}
+      `;
+
+      $('railSources').textContent = String(sources.length);
+      $('railStale').textContent = String(staleSources.length);
+      $('railCheck').textContent = new Date().toLocaleTimeString();
+      if (currentView === 'health') {
+        $('checkSources').textContent = 'Refresh health';
+      }
+    }
+
+    $('refresh').onclick = () => { loadAlerts(); loadSources(); };
     $('checkSources').onclick = () => loadSources(true);
-    ['type', 'level', 'q'].forEach(id => $(id).addEventListener('input', loadAlerts));
+    $('q').addEventListener('input', loadAlerts);
+    $('type').addEventListener('change', loadAlerts);
+    $('level').addEventListener('change', loadAlerts);
+    $('regime').addEventListener('change', loadAlerts);
+
+    applyView();
     loadAlerts();
     loadSources();
   </script>
 </body>
 </html>""".encode("utf-8")
+
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -510,7 +1428,7 @@ class Handler(BaseHTTPRequestHandler):
             if parsed.path == "/healthz":
                 self._send(200, {"ok": True})
                 return
-            if parsed.path in ("/", "/dashboard"):
+            if parsed.path in ("/", "/dashboard") or parsed.path.startswith("/dashboard/"):
                 body = dashboard_html()
                 self.send_response(200)
                 self.send_header("Content-Type", "text/html; charset=utf-8")
