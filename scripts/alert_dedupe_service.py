@@ -376,6 +376,23 @@ def dashboard_html() -> bytes:
       overflow-y: auto;
       overflow-x: hidden;
     }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-accent) transparent;
+    }
+    *::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: var(--border-accent);
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
     a { color: var(--accent); text-decoration: none; }
     .app {
       display: grid;
@@ -561,9 +578,10 @@ def dashboard_html() -> bytes:
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: linear-gradient(180deg, rgba(23,26,32,0.94), rgba(14,16,19,0.96));
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow), inset 0 1px 0 var(--border-subtle);
       overflow: hidden;
       min-width: 0;
+      border-top-color: var(--border-accent);
     }
     .card-head {
       padding: 16px 18px 12px;
@@ -578,10 +596,11 @@ def dashboard_html() -> bytes:
       font-size: 14px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      color: var(--steel-light);
     }
     .card-head .sub {
       margin: 6px 0 0;
-      color: var(--muted);
+      color: var(--steel-mid);
       font-size: 12px;
     }
     .badge {
@@ -591,6 +610,8 @@ def dashboard_html() -> bytes:
       color: var(--muted);
       font-size: 12px;
       white-space: nowrap;
+      background: rgba(255,255,255,0.02);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
     }
     .main-alert {
       padding: 18px 18px 16px;
@@ -615,6 +636,7 @@ def dashboard_html() -> bytes:
       font-weight: 800;
       letter-spacing: 0.05em;
       text-transform: uppercase;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
     }
     .alert-type .flag {
       width: 12px;
@@ -641,13 +663,14 @@ def dashboard_html() -> bytes:
       padding: 16px;
       background: rgba(255,255,255,0.025);
       min-width: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
     .alert-panel h4 {
       margin: 0 0 12px;
-      color: var(--muted);
+      color: var(--steel-dim);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-size: 11px;
+      font-size: 10px;
     }
     .stat-row { display: grid; gap: 10px; }
     .stat {
@@ -700,30 +723,49 @@ def dashboard_html() -> bytes:
     .list { display: grid; gap: 0; }
     .list-item {
       display: grid;
-      grid-template-columns: 78px 112px 1fr;
-      gap: 12px;
+      grid-template-columns: 104px 110px minmax(0, 1fr);
+      gap: 10px 12px;
+      align-items: center;
       padding: 12px 16px;
-      border-top: 1px solid var(--line);
+      border-top: 1px solid rgba(34,37,43,0.6);
       min-width: 0;
+      transition: background 80ms ease;
     }
     .list-item:first-child { border-top: 0; }
-    .list-time { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .list-item:hover { background: rgba(255,255,255,0.025); }
+    .list-time {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      font-family: var(--font-display);
+      line-height: 1;
+    }
     .list-tag {
       color: var(--text);
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      justify-self: start;
     }
-    .list-text { min-width: 0; }
+    .list-text {
+      min-width: 0;
+      overflow: hidden;
+    }
     .list-text .title {
       font-weight: 700;
       margin-bottom: 4px;
       overflow-wrap: anywhere;
+      line-height: 1.25;
     }
     .list-text .meta {
       color: var(--muted);
       font-size: 12px;
       overflow-wrap: anywhere;
+      line-height: 1.35;
     }
     .rail {
       padding-top: 58px;
@@ -757,7 +799,7 @@ def dashboard_html() -> bytes:
     }
     th, td {
       padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
+      border-bottom: 1px solid rgba(34,37,43,0.6);
       text-align: left;
       vertical-align: top;
       white-space: normal;
@@ -777,6 +819,9 @@ def dashboard_html() -> bytes:
       color: var(--text);
       overflow-wrap: anywhere;
     }
+    tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
     .pill {
       display: inline-flex;
       align-items: center;
@@ -786,6 +831,7 @@ def dashboard_html() -> bytes:
       border: 1px solid var(--line);
       font-size: 12px;
       white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
     }
     .pill.RED, .pill.RISK_OFF { color: var(--bad); }
     .pill.ORANGE, .pill.YELLOW { color: var(--warn); }
@@ -823,6 +869,16 @@ def dashboard_html() -> bytes:
       background: rgba(255,255,255,0.04);
       border-color: var(--line);
     }
+    input:focus, select:focus, button:focus-visible,
+    .searchbox:focus-within {
+      box-shadow: var(--shadow-focus);
+      border-color: var(--border-accent);
+      outline: none;
+    }
+    @media (max-width: 1440px) {
+      .app { grid-template-columns: var(--sidebar) 1fr 240px; }
+      .rail { width: 240px; }
+    }
     @media (max-width: 1320px) {
       .app { grid-template-columns: 86px 1fr; }
       .rail { display: none; }
@@ -832,7 +888,7 @@ def dashboard_html() -> bytes:
       .sidebar .nav .tag { display: none; }
       .sidebar .brand { justify-content: center; }
     }
-    @media (max-width: 1040px) {
+    @media (max-width: 1100px) {
       body { overflow: auto; }
       .app { grid-template-columns: 1fr; }
       .sidebar { display: none; }
@@ -842,8 +898,14 @@ def dashboard_html() -> bytes:
       .market-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .alert-grid { grid-template-columns: 1fr; }
       .filters { grid-template-columns: 1fr; }
-      .list-item { grid-template-columns: 72px 1fr; }
+      .list-item { grid-template-columns: 88px minmax(0, 1fr); }
       .list-item .list-tag { display: none; }
+    }
+    @media (max-width: 768px) {
+      .content { padding: 14px 12px 16px; }
+      .workspace { gap: 12px; }
+      .card-head, .main-alert { padding-left: 14px; padding-right: 14px; }
+      .market-strip, .alert-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
