@@ -381,13 +381,13 @@ def dashboard_html() -> bytes:
       min-height: 100vh;
     }
     .sidebar {
-      padding: 24px 18px;
+      padding: 22px 16px;
       border-right: 1px solid var(--line);
       background: linear-gradient(180deg, rgba(17,19,24,0.98), rgba(13,15,19,0.94));
       box-shadow: inset -1px 0 0 rgba(255,255,255,0.03);
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 18px;
     }
     .brand {
       display: flex;
@@ -480,14 +480,14 @@ def dashboard_html() -> bytes:
     .content {
       min-width: 0;
       overflow: auto;
-      padding: 20px 20px 24px;
+      padding: 18px 18px 20px;
     }
     .topbar {
       display: grid;
       grid-template-columns: 1fr minmax(260px, 380px) auto;
       gap: 16px;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
     .hero h2 {
       margin: 0;
@@ -501,7 +501,7 @@ def dashboard_html() -> bytes:
     .searchbox {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       padding: 13px 14px;
       border-radius: 999px;
       border: 1px solid var(--line);
@@ -551,10 +551,10 @@ def dashboard_html() -> bytes:
     .workspace {
       display: grid;
       grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.9fr);
-      gap: 18px;
+      gap: 14px;
       align-items: start;
     }
-    .stack { display: grid; gap: 18px; min-width: 0; }
+    .stack { display: grid; gap: 14px; min-width: 0; }
     .card {
       border: 1px solid var(--line);
       border-radius: var(--radius);
@@ -564,7 +564,7 @@ def dashboard_html() -> bytes:
       min-width: 0;
     }
     .card-head {
-      padding: 18px 20px 14px;
+      padding: 16px 18px 12px;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: flex-start;
@@ -591,9 +591,9 @@ def dashboard_html() -> bytes:
       white-space: nowrap;
     }
     .main-alert {
-      padding: 22px 20px 20px;
+      padding: 18px 18px 16px;
       display: grid;
-      gap: 18px;
+      gap: 14px;
     }
     .main-alert-top {
       display: flex;
@@ -630,7 +630,7 @@ def dashboard_html() -> bytes:
     .alert-grid {
       display: grid;
       grid-template-columns: 1.08fr 0.92fr;
-      gap: 18px;
+      gap: 14px;
       min-width: 0;
     }
     .alert-panel {
@@ -651,7 +651,7 @@ def dashboard_html() -> bytes:
     .stat {
       display: grid;
       grid-template-columns: 96px 1fr;
-      gap: 12px;
+      gap: 10px;
       align-items: start;
       min-width: 0;
     }
@@ -700,7 +700,7 @@ def dashboard_html() -> bytes:
       display: grid;
       grid-template-columns: 78px 112px 1fr;
       gap: 12px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       border-top: 1px solid var(--line);
       min-width: 0;
     }
@@ -726,7 +726,7 @@ def dashboard_html() -> bytes:
     .rail {
       padding-top: 58px;
       display: grid;
-      gap: 18px;
+      gap: 14px;
     }
     .rail .mini {
       padding: 18px 18px 16px;
