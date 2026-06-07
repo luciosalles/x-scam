@@ -30,19 +30,20 @@ No RSS.app, para cada fonte:
 
 Para a camada Brasil Local, use `config/brazil_local_rss_app_seed_list.csv`.
 Depois de gerar cada RSS no RSS.app, registre a URL real em `config/brazil_local_rss_app_urls.json`.
+Se estiver confuso sobre qual fonte tentar primeiro, siga `docs/brazil-local-source-ladder.md`.
 
-Ordem sugerida:
+Ordem sugerida inicial:
 
-1. BCB - Comunicados do Copom
-2. BCB - Atas do Copom
-3. BCB - Calendario do BC
-4. IBGE - Releases gerais
+1. Tesouro Nacional - Noticias
+2. IBGE - Releases gerais
+3. Petrobras - Agencia de Noticias
+4. Vale - Informacoes para o mercado
 5. IBGE - Tag IPCA
-6. Tesouro Nacional - Noticias
-7. Tesouro Nacional - RTN
-8. Ministério da Fazenda - Noticias
-9. Petrobras - Agencia de Noticias
-10. Vale - Informacoes para o mercado
+6. Tesouro Nacional - RTN
+7. BCB - Comunicados do Copom
+8. BCB - Atas do Copom
+9. BCB - Calendario do BC
+10. Ministério da Fazenda - Noticias
 
 Para cada página:
 
@@ -60,6 +61,7 @@ Para cada página:
 ```
 
 9. Se o status for `ok`, cole a mesma URL no node `Brazil Local Feeds` do n8n, campo `feedUrl`.
+10. Se a fonte falhar, nao insista nela. Passe para a seguinte da `source ladder`.
 
 Observação:
 - páginas muito dinâmicas podem exigir o `RSS Builder` em vez do gerador simples.

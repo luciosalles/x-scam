@@ -1,12 +1,12 @@
 {
-  "updated": "2026-06-04",
+  "updated": "2026-06-06",
   "displayLabels": {
     "GREEN": "Sem sinal",
-    "YELLOW": "Atenção",
+    "YELLOW": "Atencao",
     "ORANGE": "Laranja",
     "RED": "Vermelho",
-    "RISK_ON": "Viés de alta",
-    "RISK_OFF": "Viés de baixa"
+    "RISK_ON": "Vies de alta",
+    "RISK_OFF": "Vies de baixa"
   },
   "sensitivityProfiles": {
     "conservative": {
@@ -32,28 +32,28 @@
     }
   },
   "brazilLocalThresholds": {
-    "monitor": 50,
-    "orange": 70,
-    "red": 85,
-    "notes": "Score interno permanece técnico; a UI deve mostrar apenas tendencia, conviccao e leitura operacional."
+    "monitor": 45,
+    "orange": 65,
+    "red": 80,
+    "notes": "Score interno permanece tecnico; a UI deve mostrar apenas tendencia, conviccao e leitura operacional. Brasil Local usa corte um pouco mais sensivel para captar o conjunto BCB/IBGE/UOL."
   },
   "brazilLocalProfiles": {
     "conservative": {
-      "minScore": 80,
+      "minScore": 78,
       "minConfidence": 0.7,
       "requireOfficialOrTwoSources": true,
       "cooldownMinutesByFingerprint": 45,
       "useCase": "Cliente pagante que quer pouco ruido e mais confirmacao."
     },
     "balanced": {
-      "minScore": 68,
+      "minScore": 65,
       "minConfidence": 0.6,
       "requireOfficialOrTwoSources": false,
       "cooldownMinutesByFingerprint": 30,
       "useCase": "MVP padrao para Brasil Local."
     },
     "aggressive": {
-      "minScore": 55,
+      "minScore": 52,
       "minConfidence": 0.5,
       "requireOfficialOrTwoSources": false,
       "cooldownMinutesByFingerprint": 15,
@@ -71,7 +71,7 @@
       "level": "YELLOW",
       "scoreRange": [40, 59],
       "action": "telegram_internal_watchlist",
-      "description": "Monitorar narrativa, sem viés forte."
+      "description": "Monitorar narrativa, sem vies forte."
     },
     {
       "level": "ORANGE",

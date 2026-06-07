@@ -20,6 +20,8 @@ O projeto ja saiu da fase de ideia e entrou na fase de integracao operacional.
 - threshold de `Laranja` e `Vermelho`
 - equilibrio entre ruido e sinal
 - rotina de dedupe e atualizacao de regime
+- leitura comparativa do UOL como backup de mercado
+- integracao oficial do BCB com `focus`, `cambio`, `normativos` e `atascomef`
 
 ### Falta construir
 
@@ -36,6 +38,7 @@ O projeto ja saiu da fase de ideia e entrou na fase de integracao operacional.
 3. Consolidar dashboard minimo com historico
 4. Planejar login e monetizacao
 5. Depois integrar `Profit` e pagamentos
+6. Finalizar dashboard mais bonito e onboarding mais simples
 
 ## Risco tecnico atual
 
@@ -49,3 +52,10 @@ Se vierem altos demais, vira um produto que quase nunca alerta.
 
 O sistema deve ser vendido como leitura de vies e alerta operacional, nao como previsao garantida.
 
+## O que falta para considerar esta fase fechada
+
+- Todas as fontes Brasil Local importantes com URL valida
+- Teste real em dia util sem spam
+- Mensagens finais padronizadas
+- Dashboard com historico util
+- Manual operacional unico para usuario iniciante

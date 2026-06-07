@@ -13,17 +13,19 @@
           "name": "BCB - Comunicados do Copom",
           "pageUrl": "https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos",
           "sourceType": "official",
-          "rssAppMode": "rss_app_page_monitor",
+          "rssAppMode": "official_rss",
           "n8nUse": "RSS Feed Read",
-          "why": "Decisao de Selic, viés e comunicacao do BC"
+          "weight": 96,
+          "why": "Decisao de Selic, vies e comunicacao do BC"
         },
         {
           "id": "bcb_copom_minutes",
           "name": "BCB - Atas do Copom",
           "pageUrl": "https://www.bcb.gov.br/publicacoes/atascopom/cronologicos",
           "sourceType": "official",
-          "rssAppMode": "rss_app_page_monitor",
+          "rssAppMode": "official_rss",
           "n8nUse": "RSS Feed Read",
+          "weight": 94,
           "why": "Leitura fina do tom do Copom e sinais para juros futuros"
         },
         {
@@ -31,8 +33,9 @@
           "name": "BCB - Calendario do BC",
           "pageUrl": "https://www.bcb.gov.br/acessoinformacao/calendariobc",
           "sourceType": "official",
-          "rssAppMode": "rss_app_page_monitor",
+          "rssAppMode": "official_rss",
           "n8nUse": "RSS Feed Read",
+          "weight": 78,
           "why": "Agenda de comunicados, reunioes e publicacoes"
         },
         {
@@ -42,7 +45,48 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_homepage_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 82,
           "why": "Monitorar notas e comunicados urgentes do BC"
+        },
+        {
+          "id": "bcb_focus",
+          "name": "BCB - Focus",
+          "pageUrl": "https://www.bcb.gov.br/acessoinformacao/rss",
+          "sourceType": "official",
+          "rssAppMode": "official_rss",
+          "n8nUse": "RSS Feed Read",
+          "weight": 92,
+          "why": "Expectativas de mercado, Selic, inflacao, cambio e atividade"
+        },
+        {
+          "id": "bcb_cambio",
+          "name": "BCB - Cambio",
+          "pageUrl": "https://www.bcb.gov.br/acessoinformacao/rss",
+          "sourceType": "official",
+          "rssAppMode": "official_rss",
+          "n8nUse": "RSS Feed Read",
+          "weight": 90,
+          "why": "Leitura de dolar/PTAX e pressao cambial"
+        },
+        {
+          "id": "bcb_normativos",
+          "name": "BCB - Normativos",
+          "pageUrl": "https://www.bcb.gov.br/acessoinformacao/rss",
+          "sourceType": "official",
+          "rssAppMode": "official_rss",
+          "n8nUse": "RSS Feed Read",
+          "weight": 88,
+          "why": "Mudancas regulatorias do BC e macro policy"
+        },
+        {
+          "id": "bcb_atascomef",
+          "name": "BCB - Atas do Comef",
+          "pageUrl": "https://www.bcb.gov.br/acessoinformacao/rss",
+          "sourceType": "official",
+          "rssAppMode": "official_rss",
+          "n8nUse": "RSS Feed Read",
+          "weight": 86,
+          "why": "Estabilidade financeira e leitura institucional"
         }
       ]
     },
@@ -58,6 +102,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 84,
           "why": "Captura IPCA, IPCA-15, PIB, industria, servicos e emprego"
         },
         {
@@ -67,6 +112,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_tag_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 86,
           "why": "Foco total em inflacao"
         },
         {
@@ -76,6 +122,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_search_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 82,
           "why": "Pegada extra para releases com IPCA-15 e inflacao"
         }
       ]
@@ -92,6 +139,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 76,
           "why": "Superavit, deficit, divida, emissao e medidas fiscais"
         },
         {
@@ -101,16 +149,18 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 80,
           "why": "Resultado fiscal mensal que mexe com juros longos e DI"
         },
         {
           "id": "fazenda_news",
-          "name": "Ministério da Fazenda - Noticias",
+          "name": "Ministerio da Fazenda - Noticias",
           "pageUrl": "https://www.gov.br/fazenda/pt-br/assuntos/noticias",
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
-          "why": "Falas do ministro, medidas e ruído fiscal/politico"
+          "weight": 78,
+          "why": "Falas do ministro, medidas e ruido fiscal/politico"
         }
       ]
     },
@@ -126,6 +176,7 @@
           "sourceType": "market_reference",
           "rssAppMode": "page_or_html_monitor",
           "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "weight": 72,
           "why": "Referencia oficial para WIN / IND"
         },
         {
@@ -135,6 +186,7 @@
           "sourceType": "market_reference",
           "rssAppMode": "page_or_html_monitor",
           "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "weight": 68,
           "why": "Mapa geral dos contratos futuros brasileiros"
         },
         {
@@ -144,6 +196,7 @@
           "sourceType": "market_reference",
           "rssAppMode": "page_or_html_monitor",
           "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "weight": 78,
           "why": "Referencia oficial do DI1 e do custo de juros"
         },
         {
@@ -153,6 +206,7 @@
           "sourceType": "market_reference",
           "rssAppMode": "page_or_html_monitor",
           "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "weight": 70,
           "why": "Leitura de microestrutura e ajuste do DI"
         },
         {
@@ -162,6 +216,7 @@
           "sourceType": "market_reference",
           "rssAppMode": "page_or_html_monitor",
           "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "weight": 74,
           "why": "Referencia de contrato de dolar local"
         },
         {
@@ -171,6 +226,7 @@
           "sourceType": "market_reference",
           "rssAppMode": "page_or_html_monitor",
           "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "weight": 74,
           "why": "Contexto de dolar futuro que afeta WIN"
         },
         {
@@ -180,7 +236,8 @@
           "sourceType": "market_reference",
           "rssAppMode": "page_or_html_monitor",
           "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
-          "why": "Volatilidade implícita no Brasil"
+          "weight": 66,
+          "why": "Volatilidade implicita no Brasil"
         }
       ]
     },
@@ -196,6 +253,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 84,
           "why": "Dividendos, producao, combustiveis, investimentos e politica de precos"
         },
         {
@@ -205,6 +263,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 80,
           "why": "Resultados, comunicados ao mercado e eventos relevantes"
         },
         {
@@ -214,6 +273,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 82,
           "why": "Resultados, comunicados e calendario de eventos"
         },
         {
@@ -223,6 +283,7 @@
           "sourceType": "official",
           "rssAppMode": "rss_app_page_monitor",
           "n8nUse": "RSS Feed Read",
+          "weight": 78,
           "why": "Mudancas operacionais, resultados e noticias corporativas"
         }
       ]

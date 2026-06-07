@@ -1,17 +1,24 @@
-layer,source_id,name,page_url,rssapp_mode,priority,notes
-policy_monetary,bcb_copom_communications,BCB - Comunicados do Copom,https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos,rss_app_page_monitor,1,Alta prioridade para juros e tom do BC
-policy_monetary,bcb_copom_minutes,BCB - Atas do Copom,https://www.bcb.gov.br/publicacoes/atascopom/cronologicos,rss_app_page_monitor,1,Leitura fina de viés e linguagem futura
-policy_monetary,bcb_calendar,BCB - Calendario do BC,https://www.bcb.gov.br/acessoinformacao/calendariobc,rss_app_page_monitor,1,Agenda oficial de comunicados e eventos
-inflation_activity,ibge_releases_general,IBGE - Releases gerais,https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa.html?lang=pt-BR,rss_app_page_monitor,1,IPCA, IPCA-15, PIB, industria e servicos
-inflation_activity,ibge_ipca_tag,IBGE - Tag IPCA,https://agenciadenoticias.ibge.gov.br/agencia-noticias.html?start=0&tag=IPCA,rss_app_tag_monitor,1,Foco em inflacao oficial
-inflation_activity,ibge_search_ipca15,IBGE - Busca IPCA-15,https://agenciadenoticias.ibge.gov.br/busca-avancada.html?contem=ipca,rss_app_search_monitor,2,Complemento para capturar releases de inflacao
-fiscal_policy,tesouro_news,Tesouro Nacional - Noticias,https://www.gov.br/tesouronacional/pt-br/noticias,rss_app_page_monitor,1,Fiscal, divida, emissao e comunicados
-fiscal_policy,tesouro_rtn,Tesouro Nacional - RTN,https://www.gov.br/tesouronacional/pt-br/estatisticas-fiscais-e-planejamento/resultado-do-tesouro-nacional-rtn,rss_app_page_monitor,1,Resultado do Tesouro Nacional
-fiscal_policy,fazenda_news,Ministério da Fazenda - Noticias,https://www.gov.br/fazenda/pt-br/assuntos/noticias,rss_app_page_monitor,1,Falas, medidas e ruído fiscal
+﻿layer,source_id,name,page_url,rssapp_mode,priority,notes
+inflation_activity,ibge_releases_general,IBGE - Releases gerais,https://agenciadenoticias.ibge.gov.br/agencia-noticias.html?editoria=ibge,official_rss,1,RSS oficial da Agencia IBGE Noticias; usar antes de RSS.app
+inflation_activity,ibge_ipca_tag,IBGE - Tag IPCA,https://agenciadenoticias.ibge.gov.br/agencia-noticias.html?start=0&tag=IPCA,official_rss,1,RSS oficial da Agencia IBGE Noticias; filtrar por IPCA no scorer
+policy_monetary,bcb_focus,BCB - Focus,https://www.bcb.gov.br/acessoinformacao/rss,official_rss,1,Expectativas de mercado, Selic, inflacao, cambio e atividade
+policy_monetary,bcb_cambio,BCB - Cambio,https://www.bcb.gov.br/acessoinformacao/rss,official_rss,1,Leitura de dolar/PTAX e pressao cambial
+policy_monetary,bcb_normativos,BCB - Normativos,https://www.bcb.gov.br/acessoinformacao/rss,official_rss,1,Mudancas regulatorias do BC e macro policy
+policy_monetary,bcb_atascomef,BCB - Atas do Comef,https://www.bcb.gov.br/acessoinformacao/rss,official_rss,1,Estabilidade financeira e leitura institucional
+market_news,uol_economia_home,UOL Economia,https://economia.uol.com.br/,rss_app_page_monitor,2,Melhor pagina geral de economia do UOL
+market_news,uol_economia_latest,UOL - Ultimas de Economia,https://economia.uol.com.br/ultimas/,rss_app_page_monitor,2,Melhor pagina para manchetes novas do UOL Economia
+market_news,uol_investments,UOL - Investimentos / Bolsas e Acoes,https://economia.uol.com.br/mais/,rss_app_page_monitor,2,Melhor pagina de mercado e investimentos do UOL
+policy_monetary,bcb_copom_communications,BCB - Comunicados do Copom,https://www.bcb.gov.br/acessoinformacao/rss,official_rss,1,RSS oficial do Banco Central
+policy_monetary,bcb_copom_minutes,BCB - Atas do Copom,https://www.bcb.gov.br/acessoinformacao/rss,official_rss,1,RSS oficial do Banco Central
+policy_monetary,bcb_calendar,BCB - Calendario do BC,https://www.bcb.gov.br/acessoinformacao/rss,official_rss,1,RSS oficial do Banco Central
+fiscal_policy,tesouro_news,Tesouro Nacional - Noticias,https://www.gov.br/tesouronacional/pt-br/noticias,rss_app_page_monitor,1,Melhor pagina de noticias do Tesouro para RSS.app
+fiscal_policy,tesouro_rtn,Tesouro Nacional - RTN,https://www.gov.br/tesouronacional/pt-br/estatisticas-fiscais-e-planejamento/resultado-do-tesouro-nacional-rtn,rss_app_page_monitor,1,Pagina forte para fiscal; testar RSS.app
+fiscal_policy,fazenda_news,Ministerio da Fazenda - Noticias,https://www.gov.br/fazenda/pt-br/assuntos/noticias,rss_app_page_monitor,1,Fonte de ruido fiscal e politico
+corporate_weights,petrobras_news_agency,Petrobras - Agencia de Noticias,https://agencia.petrobras.com.br/pt/listar-editoria,rss_app_page_monitor,1,Melhor pagina de alto volume para Petrobras
+corporate_weights,vale_investor_market,Vale - Informacoes para o mercado,https://www.vale.com/pt/informacoes-para-o-mercado,rss_app_page_monitor,1,Pagina de mercado e eventos; testar RSS.app
+corporate_weights,vale_press_releases,Vale - Press Releases,https://vale.com/en/press-releases,rss_app_page_monitor,1,Complemento de alta relevancia para Vale
 market_confirmation,b3_ibovespa_futures,B3 - Futuro de Ibovespa,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/futuro-de-ibovespa.htm,page_or_html_monitor,2,Referencia de WIN e IND
 market_confirmation,b3_market_futures,B3 - Mercado Futuro,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/mercado-futuro.htm,page_or_html_monitor,2,Mapa dos contratos futuros do Brasil
 market_confirmation,b3_di1_reference,B3 - DI1 / Juros,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/juros/futuro-de-taxa-media-de-depositos-interfinanceiros-de-um-dia.htm,page_or_html_monitor,2,Contexto de juros futuros
 market_confirmation,b3_mini_dolar,B3 - Mini Dolar,https://edu.b3.com.br/w/mini-dolar,page_or_html_monitor,2,Referencia de dolar local
 market_confirmation,b3_petrobras_dollar_index,B3 - Produto de moeda / dolar,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/moedas/futuro-mini-de-taxa-de-cambio-de-reais-por-dolar-comercial.htm,page_or_html_monitor,2,Contexto de cambio
-corporate_weights,petrobras_news_agency,Petrobras - Agencia de Noticias,https://agencia.petrobras.com.br/pt,rss_app_page_monitor,1,Dividendos, producao, combustiveis e precificacao
-corporate_weights,vale_investor_market,Vale - Informacoes para o mercado,https://www.vale.com/pt/informacoes-para-o-mercado,rss_app_page_monitor,1,Resultados, comunicados e eventos
