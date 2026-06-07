@@ -1,6 +1,6 @@
-# Manual Tecnico de Operacao
+# Manual Tecnico de Operacao v1
 
-Este documento serve para subir, testar e operar o projeto sem depender de memoria da conversa.
+Este manual explica como subir, testar e entender o projeto sem depender da conversa.
 
 ## 1. O que existe hoje
 
@@ -10,7 +10,17 @@ Este documento serve para subir, testar e operar o projeto sem depender de memor
 - `PROD - Brazil Local Alert`
 - `PROD - BCB Direct Macro`
 
-## 2. Como subir o ambiente local
+## 2. O que cada fluxo faz
+
+| Fluxo | Funcao |
+| --- | --- |
+| `TEST - Telegram Smoke Test` | Envia 1 mensagem falsa para provar que Telegram funciona |
+| `PROD - Trump Tariff Alert` | Lê noticias e dispara quando a manchete tem impacto forte |
+| `PROD - Market Reaction Engine` | Lê ES, NQ, Gold e DXY para definir risco-on / risco-off |
+| `PROD - Brazil Local Alert` | Lê fontes locais e gera vies para WIN, dolar e Brasil |
+| `PROD - BCB Direct Macro` | Lê PTAX e expectativas oficiais do BCB por API direta |
+
+## 3. Como subir o ambiente local
 
 No PowerShell, dentro da raiz do projeto:
 
@@ -25,43 +35,44 @@ O dashboard local fica em:
 http://127.0.0.1:8787/dashboard
 ```
 
-## 3. Como validar a base
+## 4. Como importar os workflows
+
+Se precisar reimportar tudo:
 
 ```powershell
-.\scripts\validate-brazil-local-rss.ps1
+.\scripts\import-workflow.ps1
 ```
 
-Use isso depois de colar URLs reais no arquivo:
+Esse script importa:
 
-```text
-config/brazil_local_rss_app_urls.json
-```
+- smoke test do Telegram
+- tariff alert
+- market reaction
+- brazil local
+- BCB direct macro
 
-## 4. Ordem de teste
+## 5. Como testar sem se perder
+
+Ordem recomendada:
 
 1. Rodar `TEST - Telegram Smoke Test`.
-2. Rodar `PROD - Trump Tariff Alert` manualmente.
-3. Rodar `PROD - Market Reaction Engine` manualmente.
+2. Rodar `PROD - Market Reaction Engine` manualmente.
+3. Rodar `PROD - BCB Direct Macro` manualmente.
 4. Rodar `PROD - Brazil Local Alert` manualmente.
-5. Rodar `PROD - BCB Direct Macro` manualmente.
+5. Rodar `PROD - Trump Tariff Alert` manualmente.
 6. Abrir o dashboard e confirmar historico e saude das fontes.
 
-## 5. Como interpretar o resultado
+## 6. Como interpretar o resultado
 
-- Execucao verde e sem Telegram: o filtro bloqueou corretamente.
-- Node vermelho no Telegram: problema de credencial ou `chat_id`.
-- Node vermelho no RSS/HTTP: problema de fonte ou URL.
-- Dashboard vazio: o alerta nao passou pelo `Record ... Alert`.
+- Workflow verde e sem alerta: o filtro bloqueou corretamente.
+- Node vermelho no Telegram: problema de credencial, chat_id ou bot.
+- Node vermelho no Discord: problema no webhook.
+- Node vermelho no RSS/HTTP: problema de fonte, URL ou parser.
+- Dashboard vazio: o alerta nao chegou no node de gravacao.
 
-## 6. Brasil Local
+## 7. O que o usuario final deve enxergar
 
-Regra atual:
-
-- `YELLOW`: monitoramento
-- `ORANGE`: viés ja util para intraday
-- `RED`: impacto forte, acao mais agressiva
-
-O usuario final deve ver:
+### Brasil Local
 
 - `Tendencia`
 - `Conviccao`
@@ -70,21 +81,61 @@ O usuario final deve ver:
 - `Confirmar`
 - `Invalidar`
 
-Nao deve depender de score para operar.
+### BCB Direct Macro
 
-## 7. O que ainda falta
+- `Tendencia`
+- `Conviccao`
+- `Leitura WIN`
+- `Leitura Dolar`
+- `Leitura Nasdaq/ES`
+- `Leituras oficiais`
+
+### Market Reaction
+
+- `Regime`
+- `Intensidade`
+- `Tendencia`
+- `Conviccao`
+- `Plano WIN`
+- `Plano Dolar`
+- `Plano Nasdaq/ES`
+
+## 8. Regras atuais
+
+- `YELLOW`: monitoramento
+- `ORANGE`: sinal util, mas ainda com cautela
+- `RED`: impacto forte
+- `RISK_OFF`: ES/NQ fracos com DXY/Gold confirmando
+- `RISK_ON`: ES/NQ fortes com DXY cedendo
+
+## 9. Onde cada coisa grava
+
+| Workflow | Node | Endpoint |
+| --- | --- | --- |
+| `PROD - Trump Tariff Alert` | `Record News Alert` | `POST /api/alerts` |
+| `PROD - Market Reaction Engine` | `Record Market Alert` | `POST /api/alerts` |
+| `PROD - Brazil Local Alert` | `Record Brazil Local Alert` | `POST /api/alerts` |
+| `PROD - BCB Direct Macro` | `Record BCB Direct Alert` | `POST /api/alerts` |
+
+## 10. O que ainda falta
 
 - Dashboard completo com dados em tempo real do `Profit`
 - Camada de login, assinatura e pagamento com `Stripe`
 - Melhor consolidacao de feed real por camada
 - Persistencia historica mais rica para analise de qualidade
-- Refinar a calibracao do BCB direto depois do primeiro uso real em dia util
+- Calibracao fina do BCB direto depois do uso em dia util
 
-## 8. Regra de producao
+## 11. Regra de producao
 
-Nao ative workflow com feed real antes de validar:
+Nao ative feed real antes de validar:
 
-- URL RSS funcionando
+- URL funcionando
 - dashboard respondendo
-- Telegram e Discord entregando
+- Telegram entregando
+- Discord entregando
 - dedupe registrando corretamente
+
+## 12. Observacao importante
+
+O `Build Discord Test` do `PROD - Market Reaction Engine` usa `ES: mock`, `NQ: mock`, `Gold: mock` e `DXY: mock` apenas para teste manual. Isso nao faz parte do fluxo de producao.
+

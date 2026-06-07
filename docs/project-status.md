@@ -61,3 +61,15 @@ O sistema deve ser vendido como leitura de vies e alerta operacional, nao como p
 - Mensagens finais padronizadas
 - Dashboard com historico util
 - Manual operacional unico para usuario iniciante
+
+## V1 operacional
+
+O manual tecnico de operacao v1 foi fechado.
+
+O que isso significa:
+
+- existe uma ordem clara de teste
+- os canais principais estao documentados
+- o BCB direto ficou separado do RSS
+- o teste manual do Market Reaction ficou explicitado como teste e nao producao
+- o dashboard tem o minimo de auditoria para operacao diaria
