@@ -1,34 +1,51 @@
 {
   "id": "trump-tariff-alert-starter",
-  "name": "Trump Tariff Alert System - Starter",
+  "name": "PROD - Trump Tariff Alert",
   "active": false,
   "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test-trigger",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -180
+      ]
+    },
     {
       "parameters": {
         "rule": {
           "interval": [
             {
-              "field": "seconds",
-              "secondsInterval": 30
+              "field": "minutes",
+              "minutesInterval": 1
             }
           ]
         }
       },
       "id": "schedule-trigger",
-      "name": "Every 30 Seconds",
+      "name": "Every 1 Minute",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const feeds = [\n  { sourceId: 'google_trump_tariff_china', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=Trump+tariff+China&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_ustr_section_301', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=USTR+Section+301+tariff&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_white_house_tariff_mexico', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=White+House+tariff+Mexico&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_tariff_exemption', layer: 'news_validation', weight: 60, feedUrl: 'https://news.google.com/rss/search?q=tariff+exemption&hl=en-US&gl=US&ceid=US:en' }\n];\nreturn feeds.map(feed => ({ json: feed }));"
+        "jsCode": "const feeds = [\n  { sourceId: 'google_trump_tariff_china', layer: 'primary', weight: 70, feedUrl: 'https://news.google.com/rss/search?q=Trump+tariff+China&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_ustr_section_301', layer: 'primary', weight: 70, feedUrl: 'https://news.google.com/rss/search?q=USTR+Section+301+tariff&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_white_house_tariff_mexico', layer: 'primary', weight: 68, feedUrl: 'https://news.google.com/rss/search?q=White+House+tariff+Mexico&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_tariff_exemption', layer: 'primary', weight: 64, feedUrl: 'https://news.google.com/rss/search?q=tariff+exemption&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_trump_trade_brazil', layer: 'secondary', weight: 66, feedUrl: 'https://news.google.com/rss/search?q=Trump+trade+Brazil&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_trump_trade_mexico', layer: 'secondary', weight: 64, feedUrl: 'https://news.google.com/rss/search?q=Trump+trade+Mexico&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_trump_trade_canada', layer: 'secondary', weight: 64, feedUrl: 'https://news.google.com/rss/search?q=Trump+trade+Canada&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_us_china_trade', layer: 'secondary', weight: 62, feedUrl: 'https://news.google.com/rss/search?q=US+China+trade+tariff&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_section_232_steel', layer: 'sector', weight: 58, feedUrl: 'https://news.google.com/rss/search?q=Section+232+steel+tariff&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_semiconductor_tariff', layer: 'sector', weight: 58, feedUrl: 'https://news.google.com/rss/search?q=semiconductor+tariff+trade&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_auto_tariff', layer: 'sector', weight: 56, feedUrl: 'https://news.google.com/rss/search?q=auto+tariff+Trump&hl=en-US&gl=US&ceid=US:en' },\n  { sourceId: 'google_export_restrictions', layer: 'sector', weight: 55, feedUrl: 'https://news.google.com/rss/search?q=export+restrictions+trade+US&hl=en-US&gl=US&ceid=US:en' }\n];\nreturn feeds.map(feed => ({ json: feed }));"
       },
       "id": "feed-list",
       "name": "Feed List",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [260, 0]
+      "position": [
+        260,
+        0
+      ]
     },
     {
       "parameters": {
@@ -38,27 +55,36 @@
       "name": "RSS Read",
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.1,
-      "position": [520, 0]
+      "position": [
+        520,
+        0
+      ]
     },
     {
       "parameters": {
-        "jsCode": "return items.map(item => {\n  const j = item.json;\n  const title = j.title || '';\n  const summary = j.contentSnippet || j.content || j.description || '';\n  const text = `${title} ${summary}`.toLowerCase();\n  const publishedRaw = j.isoDate || j.pubDate || j.pubdate || '';\n  const publishedAt = publishedRaw ? new Date(publishedRaw) : null;\n  const publishedTs = publishedAt && !Number.isNaN(publishedAt.getTime()) ? publishedAt.getTime() : null;\n  const ageHours = publishedTs ? (Date.now() - publishedTs) / 3600000 : 9999;\n  const critical = ['tariff', 'tariffs', 'duties', 'section 301', 'section 232', 'executive order', 'proclamation', 'retaliation', 'trade war'];\n  const countries = ['china', 'mexico', 'canada', 'european union', 'eu', 'japan', 'south korea', 'taiwan', 'brazil', 'india'];\n  const channels = ['semiconductor', 'chips', 'autos', 'steel', 'aluminum', 'copper', 'oil', 'rare earths', 'supply chain', 'exports', 'imports'];\n  const hardImpact = ['immediately', 'effective', 'ban', 'restriction', 'sanction', 'sanctions', 'emergency', 'investigation', 'review', 'proclamation', 'executive order'];\n  const soft = ['considering', 'may', 'could', 'proposal', 'discussion', 'rumor', 'sources say', 'draft'];\n  const count = arr => arr.filter(term => text.includes(term)).length;\n  const criticalHits = count(critical);\n  const countryHits = count(countries);\n  const channelHits = count(channels);\n  const hardImpactHits = count(hardImpact);\n  const softHits = count(soft);\n  let score = 0;\n  score += Math.min(criticalHits, 3) * 45;\n  score += Math.min(countryHits, 2) * 28;\n  score += Math.min(channelHits, 2) * 22;\n  score += Math.min(hardImpactHits, 2) * 18;\n  if (criticalHits >= 1 && countryHits >= 1) score += 25;\n  if (criticalHits >= 1 && channelHits >= 1) score += 20;\n  if (/white house|ustr|federal register|treasury|ofac/.test(text)) score += 12;\n  score -= Math.min(softHits, 2) * 35;\n  let recencyBoost = 0;\n  if (ageHours <= 1) recencyBoost = 40;\n  else if (ageHours <= 3) recencyBoost = 30;\n  else if (ageHours <= 6) recencyBoost = 20;\n  else if (ageHours <= 12) recencyBoost = 10;\n  else if (ageHours <= 24) recencyBoost = 5;\n  else if (ageHours <= 48) recencyBoost = 0;\n  else recencyBoost = -100;\n  score += recencyBoost;\n  score = Math.max(0, Math.min(220, score));\n  let alertLevel = 'GREEN';\n  if (score >= 170) alertLevel = 'RED';\n  else if (score >= 130) alertLevel = 'ORANGE';\n  else if (score >= 90) alertLevel = 'YELLOW';\n  return { json: { ...j, normalizedTitle: title.trim(), summary: summary.trim(), publishedTs, ageHours: Math.round(ageHours * 10) / 10, recencyBoost, preScore: score, preAlertLevel: alertLevel } };\n});"
+        "jsCode": "return items.map(item => {\n  const j = item.json;\n  const title = j.title || '';\n  const summary = j.contentSnippet || j.content || j.description || '';\n  const text = `${title} ${summary}`.toLowerCase();\n  const publishedRaw = j.isoDate || j.pubDate || j.pubdate || '';\n  const publishedAt = publishedRaw ? new Date(publishedRaw) : null;\n  const publishedTs = publishedAt && !Number.isNaN(publishedAt.getTime()) ? publishedAt.getTime() : null;\n  const ageHours = publishedTs ? (Date.now() - publishedTs) / 3600000 : 9999;\n  const critical = ['tariff', 'tariffs', 'duties', 'section 301', 'section 232', 'executive order', 'proclamation', 'retaliation', 'trade war', 'trade dispute'];\n  const countries = ['china', 'mexico', 'canada', 'european union', 'eu', 'japan', 'south korea', 'taiwan', 'brazil', 'india'];\n  const channels = ['semiconductor', 'chips', 'autos', 'steel', 'aluminum', 'copper', 'oil', 'rare earths', 'supply chain', 'exports', 'imports'];\n  const hardImpact = ['immediately', 'effective', 'ban', 'restriction', 'sanction', 'sanctions', 'emergency', 'investigation', 'review', 'proclamation', 'executive order'];\n  const soft = ['considering', 'may', 'could', 'proposal', 'discussion', 'rumor', 'sources say', 'draft'];\n  const layerWeight = Number(j.weight || 0);\n  const count = arr => arr.filter(term => text.includes(term)).length;\n  const criticalHits = count(critical);\n  const countryHits = count(countries);\n  const channelHits = count(channels);\n  const hardImpactHits = count(hardImpact);\n  const softHits = count(soft);\n  let score = layerWeight;\n  score += Math.min(criticalHits, 3) * 34;\n  score += Math.min(countryHits, 2) * 22;\n  score += Math.min(channelHits, 2) * 16;\n  score += Math.min(hardImpactHits, 2) * 16;\n  if (criticalHits >= 1 && countryHits >= 1) score += 20;\n  if (criticalHits >= 1 && channelHits >= 1) score += 16;\n  if (/white house|ustr|federal register|treasury|ofac|reuters|ap news|bloomberg/.test(text)) score += 10;\n  score -= Math.min(softHits, 2) * 22;\n  let recencyBoost = 0;\n  if (ageHours <= 0.5) recencyBoost = 45;\n  else if (ageHours <= 1) recencyBoost = 35;\n  else if (ageHours <= 2) recencyBoost = 28;\n  else if (ageHours <= 4) recencyBoost = 20;\n  else if (ageHours <= 8) recencyBoost = 12;\n  else if (ageHours <= 16) recencyBoost = 6;\n  else if (ageHours <= 24) recencyBoost = 0;\n  else if (ageHours <= 48) recencyBoost = -15;\n  else recencyBoost = -100;\n  score += recencyBoost;\n  score = Math.max(0, Math.min(220, score));\n  let alertLevel = 'GREEN';\n  if (score >= 155) alertLevel = 'RED';\n  else if (score >= 125) alertLevel = 'ORANGE';\n  else if (score >= 100) alertLevel = 'YELLOW';\n  return { json: { ...j, normalizedTitle: title.trim(), summary: summary.trim(), publishedTs, ageHours: Math.round(ageHours * 10) / 10, recencyBoost, preScore: score, preAlertLevel: alertLevel } };\n});"
       },
       "id": "pre-score",
       "name": "Pre-score",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [760, 0]
+      "position": [
+        760,
+        0
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.seen = staticData.seen || {};\nconst now = Date.now();\nconst ttlMs = 6 * 60 * 60 * 1000;\nconst candidates = [];\nfor (const item of items) {\n  const j = item.json;\n  const title = (j.normalizedTitle || j.title || '').toLowerCase().trim();\n  const link = (j.link || '').trim();\n  const key = `${title}|${link}`;\n  const text = `${j.normalizedTitle || ''} ${j.summary || ''}`;\n  const isRecentEnough = typeof j.publishedTs === 'number' && now - j.publishedTs <= 48 * 60 * 60 * 1000;\n  const strongEnough = j.preScore >= 170 && j.preAlertLevel === 'RED';\n  const notSoft = !/\\b(may|could|considering|rumor|draft|sources say)\\b/i.test(text);\n  if (isRecentEnough && strongEnough && notSoft) {\n    const seenAt = staticData.seen[key];\n    if (!seenAt || now - seenAt > ttlMs) {\n      candidates.push({ item, key });\n    }\n  }\n}\nfor (const [key, ts] of Object.entries(staticData.seen)) {\n  if (now - ts > ttlMs) delete staticData.seen[key];\n}\nif (!candidates.length) return [];\ncandidates.sort((a, b) => {\n  const scoreDiff = (b.item.json.preScore || 0) - (a.item.json.preScore || 0);\n  if (scoreDiff !== 0) return scoreDiff;\n  return (a.item.json.ageHours || 9999) - (b.item.json.ageHours || 9999);\n});\nconst winner = candidates[0];\nstaticData.seen[winner.key] = now;\nreturn [winner.item];"
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.seen = staticData.seen || {};\nconst now = Date.now();\nconst ttlMs = 60 * 60 * 1000;\nconst candidates = [];\nfor (const item of items) {\n  const j = item.json;\n  const title = (j.normalizedTitle || j.title || '').toLowerCase().trim();\n  const link = (j.link || '').trim();\n  const key = `${title}|${link}`;\n  const text = `${j.normalizedTitle || ''} ${j.summary || ''}`;\n  const isRecentEnough = typeof j.publishedTs === 'number' && now - j.publishedTs <= 48 * 60 * 60 * 1000;\n  const strongEnough = j.preScore >= 100;\n  const notSoft = !/\\b(rumor|draft|sources say)\\b/i.test(text);\n  if (isRecentEnough && strongEnough && notSoft) {\n    const seenAt = staticData.seen[key];\n    if (!seenAt || now - seenAt > ttlMs) {\n      candidates.push({ item, key });\n    }\n  }\n}\nfor (const [key, ts] of Object.entries(staticData.seen)) {\n  if (now - ts > ttlMs) delete staticData.seen[key];\n}\nif (!candidates.length) return [];\ncandidates.sort((a, b) => {\n  const scoreDiff = (b.item.json.preScore || 0) - (a.item.json.preScore || 0);\n  if (scoreDiff !== 0) return scoreDiff;\n  return (a.item.json.ageHours || 9999) - (b.item.json.ageHours || 9999);\n});\nconst winner = candidates[0];\nstaticData.seen[winner.key] = now;\nconst text = `${winner.item.json.normalizedTitle || ''} ${winner.item.json.summary || ''}`.toLowerCase();\nconst relief = /\\b(exemption|delay|pause|relief|reduce|rollback|suspend|waiver)\\b/.test(text);\nif (winner.item.json.preAlertLevel === 'RED') {\n  winner.item.json.tendency = relief ? 'alta ou alivio de baixa' : 'baixa forte';\n  winner.item.json.conviction = 'alta';\n} else if (winner.item.json.preAlertLevel === 'ORANGE') {\n  winner.item.json.tendency = relief ? 'alta moderada' : 'baixa moderada';\n  winner.item.json.conviction = 'media';\n} else {\n  winner.item.json.tendency = relief ? 'leve alivio' : 'baixa leve ou monitoramento';\n  winner.item.json.conviction = 'baixa';\n}\nwinner.item.json.winRead = relief ? 'WIN pode aliviar se dolar cair e indice ficar acima da VWAP.' : winner.item.json.preAlertLevel === 'RED' ? 'WIN tende a sofrer pressao vendedora se dolar subir e perder VWAP/minima da abertura.' : winner.item.json.preAlertLevel === 'ORANGE' ? 'WIN pode sentir pressao se o dolar confirmar alta e o indice perder VWAP.' : 'WIN ainda pede confirmacao de fluxo antes de venda agressiva.';\nwinner.item.json.dollarRead = relief ? 'Dolar pode ceder se o mercado ler como reducao de risco comercial.' : winner.item.json.preAlertLevel === 'RED' ? 'Dolar tende a ganhar forca em leitura risk-off ou medo de tarifa.' : winner.item.json.preAlertLevel === 'ORANGE' ? 'Dolar pode ganhar tracao se a noticia contaminar risco global.' : 'Dolar pode oscilar, mas precisa de confirmacao de fluxo.';\nwinner.item.json.nasdaqEsRead = relief ? 'Nasdaq/ES podem reagir melhor se a noticia reduzir risco de inflacao/tarifas.' : winner.item.json.preAlertLevel === 'RED' ? 'Nasdaq/ES tendem a ficar pressionados se a noticia elevar risco de inflacao, juros ou guerra comercial.' : winner.item.json.preAlertLevel === 'ORANGE' ? 'Nasdaq/ES podem sentir pressao moderada se o mercado ampliar leitura de risco.' : 'Nasdaq/ES entram mais como contexto do que gatilho.';\nwinner.item.json.reason = winner.item.json.preAlertLevel === 'RED' ? (relief ? 'Alivio relevante em tema de tarifa/comercio.' : 'Noticia forte com potencial claro de impacto macro e risco.') : winner.item.json.preAlertLevel === 'ORANGE' ? (relief ? 'Alivio parcial em tema comercial importante.' : 'Noticia relevante com potencial de impacto moderado.') : 'Ruido util para monitoramento e contexto operacional.';\nreturn [winner.item];"
       },
       "id": "high-impact-only",
       "name": "High Impact Only",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [960, 0]
+      "position": [
+        960,
+        0
+      ]
     },
     {
       "parameters": {
@@ -72,7 +98,7 @@
             {
               "id": "only-extreme-red",
               "leftValue": "={{$json.preScore}}",
-              "rightValue": 170,
+              "rightValue": 100,
               "operator": {
                 "type": "number",
                 "operation": "gte"
@@ -87,22 +113,148 @@
       "name": "IF Alert Worthy",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1160, 0]
+      "position": [
+        1160,
+        0
+      ]
     },
     {
       "parameters": {
         "chatId": "5043666791",
-        "text": "={{$json.preAlertLevel + ' | TARIFF ALERT\\nScore: ' + $json.preScore + '/220\\nAge: ' + $json.ageHours + 'h\\nRecency bonus: ' + $json.recencyBoost + '\\nHeadline: ' + $json.normalizedTitle + '\\nLink: ' + $json.link + '\\n\\nBias: extreme high-impact only.'}}"
+        "text": "={{$json.preAlertLevel + ' | TARIFF ALERT\\n\\nTitulo: ' + $json.normalizedTitle + '\\nTendencia: ' + $json.tendency + '\\nConviccao: ' + $json.conviction + '\\n\\nWIN: ' + $json.winRead + '\\nDolar: ' + $json.dollarRead + '\\nNasdaq/ES: ' + $json.nasdaqEsRead + '\\n\\nScore: ' + $json.preScore + '/220\\nIdade: ' + $json.ageHours + 'h\\nLink: ' + $json.link + '\\nMotivo: ' + $json.reason}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
       },
       "id": "telegram",
       "name": "Telegram Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1400, -100]
+      "position": [
+        1400,
+        -100
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "YSj1tjuUOLgu1unQ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $items('High Impact Only', 0, $runIndex)[0]?.json || {};\nreturn [{ json: { ...original, dedupeStatus: $json.status || 'BLOCK', dedupeKey: $json.dedupe_key || '', dedupePreview: $json.raw_key_preview || '' } }];"
+      },
+      "id": "attach-dedupe-status",
+      "name": "Attach Dedupe Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "allow-new-alert",
+              "leftValue": "={{$json.dedupeStatus}}",
+              "rightValue": "ALLOW",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-not-sent-recently",
+      "name": "IF Not Sent Recently",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://127.0.0.1:8787/check",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{$json.link || $json.normalizedTitle}}"
+            },
+            {
+              "name": "ttl",
+              "value": "86400"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-alert-log",
+      "name": "Check Alert Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/store",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const original = $items('High Impact Only', 0, $runIndex)[0]?.json || {}; return { dedupe_key: original.link || original.normalizedTitle || '', title: original.normalizedTitle || '', link: original.link || '', source: original.sourceId || 'rss' }; })() }}",
+        "options": {}
+      },
+      "id": "persist-alert-log",
+      "name": "Persist Alert Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/api/alerts",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => { const original = $items('High Impact Only', 0, $runIndex)[0]?.json || {}; return { alert_type: 'news', level: original.preAlertLevel || '', score: original.preScore || 0, title: original.normalizedTitle || original.title || '', source: original.sourceId || 'rss', link: original.link || '', tendency: original.tendency || '', conviction: original.conviction || '', win_read: original.winRead || '', dollar_read: original.dollarRead || '', us_read: original.nasdaqEsRead || '', reason: original.reason || '', channels: ['telegram'] }; })() }}",
+        "options": {}
+      },
+      "id": "record-news-alert",
+      "name": "Record News Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1840,
+        80
+      ]
     }
   ],
   "connections": {
-    "Every 30 Seconds": {
+    "Manual Test Trigger": {
       "main": [
         [
           {
@@ -150,7 +302,7 @@
       "main": [
         [
           {
-            "node": "IF Alert Worthy",
+            "node": "Check Alert Log",
             "type": "main",
             "index": 0
           }
@@ -161,7 +313,69 @@
       "main": [
         [
           {
+            "node": "IF Not Sent Recently",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Every 1 Minute": {
+      "main": [
+        [
+          {
+            "node": "Feed List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Alert Log": {
+      "main": [
+        [
+          {
+            "node": "Attach Dedupe Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Dedupe Status": {
+      "main": [
+        [
+          {
+            "node": "IF Alert Worthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Not Sent Recently": {
+      "main": [
+        [
+          {
             "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Telegram Alert": {
+      "main": [
+        [
+          {
+            "node": "Persist Alert Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Record News Alert",
             "type": "main",
             "index": 0
           }

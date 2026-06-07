@@ -1,0 +1,237 @@
+{
+  "product": "Brazil Local Alert",
+  "updated": "2026-06-06",
+  "purpose": "Feeds para capturar fatores domesticos que mexem com WIN, DI, dolar local, Petrobras e Vale.",
+  "layers": [
+    {
+      "id": "policy_monetary",
+      "name": "Politica Monetaria",
+      "priority": 1,
+      "feeds": [
+        {
+          "id": "bcb_copom_communications",
+          "name": "BCB - Comunicados do Copom",
+          "pageUrl": "https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Decisao de Selic, viés e comunicacao do BC"
+        },
+        {
+          "id": "bcb_copom_minutes",
+          "name": "BCB - Atas do Copom",
+          "pageUrl": "https://www.bcb.gov.br/publicacoes/atascopom/cronologicos",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Leitura fina do tom do Copom e sinais para juros futuros"
+        },
+        {
+          "id": "bcb_calendar",
+          "name": "BCB - Calendario do BC",
+          "pageUrl": "https://www.bcb.gov.br/acessoinformacao/calendariobc",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Agenda de comunicados, reunioes e publicacoes"
+        },
+        {
+          "id": "bcb_home_notes",
+          "name": "BCB - Notas a imprensa",
+          "pageUrl": "https://www.bcb.gov.br/index.html",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_homepage_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Monitorar notas e comunicados urgentes do BC"
+        }
+      ]
+    },
+    {
+      "id": "inflation_activity",
+      "name": "Inflacao e Atividade",
+      "priority": 2,
+      "feeds": [
+        {
+          "id": "ibge_releases_general",
+          "name": "IBGE - Releases gerais",
+          "pageUrl": "https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa.html?lang=pt-BR",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Captura IPCA, IPCA-15, PIB, industria, servicos e emprego"
+        },
+        {
+          "id": "ibge_ipca_tag",
+          "name": "IBGE - Tag IPCA",
+          "pageUrl": "https://agenciadenoticias.ibge.gov.br/agencia-noticias.html?start=0&tag=IPCA",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_tag_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Foco total em inflacao"
+        },
+        {
+          "id": "ibge_search_ipca15",
+          "name": "IBGE - Busca IPCA-15",
+          "pageUrl": "https://agenciadenoticias.ibge.gov.br/busca-avancada.html?contem=ipca",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_search_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Pegada extra para releases com IPCA-15 e inflacao"
+        }
+      ]
+    },
+    {
+      "id": "fiscal_policy",
+      "name": "Fiscal e Fazenda",
+      "priority": 3,
+      "feeds": [
+        {
+          "id": "tesouro_news",
+          "name": "Tesouro Nacional - Noticias",
+          "pageUrl": "https://www.gov.br/tesouronacional/pt-br/noticias",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Superavit, deficit, divida, emissao e medidas fiscais"
+        },
+        {
+          "id": "tesouro_rtn",
+          "name": "Tesouro Nacional - RTN",
+          "pageUrl": "https://www.gov.br/tesouronacional/pt-br/estatisticas-fiscais-e-planejamento/resultado-do-tesouro-nacional-rtn",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Resultado fiscal mensal que mexe com juros longos e DI"
+        },
+        {
+          "id": "fazenda_news",
+          "name": "Ministério da Fazenda - Noticias",
+          "pageUrl": "https://www.gov.br/fazenda/pt-br/assuntos/noticias",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Falas do ministro, medidas e ruído fiscal/politico"
+        }
+      ]
+    },
+    {
+      "id": "market_confirmation",
+      "name": "Mercado Local e Confirmacao",
+      "priority": 4,
+      "feeds": [
+        {
+          "id": "b3_ibovespa_futures",
+          "name": "B3 - Futuro de Ibovespa",
+          "pageUrl": "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/futuro-de-ibovespa.htm",
+          "sourceType": "market_reference",
+          "rssAppMode": "page_or_html_monitor",
+          "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "why": "Referencia oficial para WIN / IND"
+        },
+        {
+          "id": "b3_market_futures",
+          "name": "B3 - Mercado Futuro",
+          "pageUrl": "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/mercado-futuro.htm",
+          "sourceType": "market_reference",
+          "rssAppMode": "page_or_html_monitor",
+          "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "why": "Mapa geral dos contratos futuros brasileiros"
+        },
+        {
+          "id": "b3_di1_reference",
+          "name": "B3 - DI1 / Juros",
+          "pageUrl": "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/juros/futuro-de-taxa-media-de-depositos-interfinanceiros-de-um-dia.htm",
+          "sourceType": "market_reference",
+          "rssAppMode": "page_or_html_monitor",
+          "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "why": "Referencia oficial do DI1 e do custo de juros"
+        },
+        {
+          "id": "b3_dit_reference",
+          "name": "B3 - DIT / TAS de DI",
+          "pageUrl": "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/juros/operacao-estruturada-de-trade-at-settlement-de-futuro-de-di-dit.htm",
+          "sourceType": "market_reference",
+          "rssAppMode": "page_or_html_monitor",
+          "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "why": "Leitura de microestrutura e ajuste do DI"
+        },
+        {
+          "id": "b3_mini_dolar",
+          "name": "B3 - Mini Dolar",
+          "pageUrl": "https://edu.b3.com.br/w/mini-dolar",
+          "sourceType": "market_reference",
+          "rssAppMode": "page_or_html_monitor",
+          "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "why": "Referencia de contrato de dolar local"
+        },
+        {
+          "id": "b3_petrobras_dollar_index",
+          "name": "B3 - Produto de moeda / dolar",
+          "pageUrl": "https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/moedas/futuro-mini-de-taxa-de-cambio-de-reais-por-dolar-comercial.htm",
+          "sourceType": "market_reference",
+          "rssAppMode": "page_or_html_monitor",
+          "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "why": "Contexto de dolar futuro que afeta WIN"
+        },
+        {
+          "id": "b3_vix_brazil",
+          "name": "B3 - VIX Brasil",
+          "pageUrl": "https://www.b3.com.br/en_us/products-and-services/trading/equities/s-p-b3-bovespa-vix-index-future.htm",
+          "sourceType": "market_reference",
+          "rssAppMode": "page_or_html_monitor",
+          "n8nUse": "HTTP Request or RSS.app -> RSS Feed Read",
+          "why": "Volatilidade implícita no Brasil"
+        }
+      ]
+    },
+    {
+      "id": "corporate_weights",
+      "name": "Peso Corporativo",
+      "priority": 5,
+      "feeds": [
+        {
+          "id": "petrobras_news_agency",
+          "name": "Petrobras - Agencia de Noticias",
+          "pageUrl": "https://agencia.petrobras.com.br/pt",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Dividendos, producao, combustiveis, investimentos e politica de precos"
+        },
+        {
+          "id": "petrobras_investor_relations",
+          "name": "Petrobras - Investor Relations",
+          "pageUrl": "https://petrobras.com.br/en",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Resultados, comunicados ao mercado e eventos relevantes"
+        },
+        {
+          "id": "vale_investor_market",
+          "name": "Vale - Informacoes para o mercado",
+          "pageUrl": "https://www.vale.com/pt/informacoes-para-o-mercado",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Resultados, comunicados e calendario de eventos"
+        },
+        {
+          "id": "vale_press_releases",
+          "name": "Vale - Press Releases",
+          "pageUrl": "https://vale.com/en/press-releases",
+          "sourceType": "official",
+          "rssAppMode": "rss_app_page_monitor",
+          "n8nUse": "RSS Feed Read",
+          "why": "Mudancas operacionais, resultados e noticias corporativas"
+        }
+      ]
+    }
+  ],
+  "n8nNotes": [
+    "RSS.app should ingest the pageUrl for each item and output a unique RSS URL.",
+    "Use one RSS Feed Read node per feed or one per layer if you want to merge items upstream.",
+    "Tag every item with region=BR and theme so the scorer can separate local from global.",
+    "For market_reference pages, treat the page as context and prefer direct market data feeds when available."
+  ]
+}

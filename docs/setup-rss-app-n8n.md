@@ -1,5 +1,8 @@
 # Setup RSS.app + n8n
 
+Fonte de verdade operacional:
+- [Alert Map](C:/Users/scorpion/Documents/X-Scam/docs/alert-map.md)
+
 ## 1. Criar feeds no RSS.app
 
 Comece pelas fontes da camada `official_primary` em `config/feed_layers.json`.
@@ -23,6 +26,53 @@ No RSS.app, para cada fonte:
 4. Copie a URL RSS gerada.
 5. Substitua ou acrescente a URL no workflow n8n.
 
+### Brasil Local primeiro
+
+Para a camada Brasil Local, use `config/brazil_local_rss_app_seed_list.csv`.
+Depois de gerar cada RSS no RSS.app, registre a URL real em `config/brazil_local_rss_app_urls.json`.
+
+Ordem sugerida:
+
+1. BCB - Comunicados do Copom
+2. BCB - Atas do Copom
+3. BCB - Calendario do BC
+4. IBGE - Releases gerais
+5. IBGE - Tag IPCA
+6. Tesouro Nacional - Noticias
+7. Tesouro Nacional - RTN
+8. Ministério da Fazenda - Noticias
+9. Petrobras - Agencia de Noticias
+10. Vale - Informacoes para o mercado
+
+Para cada página:
+
+1. Copie a URL oficial da página.
+2. Cole no RSS.app.
+3. Gere o feed.
+4. Salve em `My Feeds`.
+5. Copie a URL RSS gerada.
+6. Cole em `config/brazil_local_rss_app_urls.json`, no campo `rss_url`.
+7. Troque `enabled` para `true` apenas depois de validar.
+8. Rode:
+
+```powershell
+.\scripts\validate-brazil-local-rss.ps1
+```
+
+9. Se o status for `ok`, cole a mesma URL no node `Brazil Local Feeds` do n8n, campo `feedUrl`.
+
+Observação:
+- páginas muito dinâmicas podem exigir o `RSS Builder` em vez do gerador simples.
+- RSS.app documenta duas opções: gerar direto por URL ou usar o Builder quando a página exigir seleção manual.
+- O workflow `PROD - Brazil Local Alert` nao dispara erro se nenhum `feedUrl` estiver preenchido. Ele simplesmente nao envia nada.
+- O node `Manual Test Trigger` continua servindo para smoke test sem depender de RSS.app.
+
+Runbook completo:
+
+```text
+docs/brazil-local-rss-app-20-step-runbook.md
+```
+
 ## 2. Google Alerts
 
 Crie alertas com entrega por RSS quando disponivel, ou email se RSS nao aparecer.
@@ -44,7 +94,13 @@ Queries recomendadas:
 
 ## 3. n8n
 
-Fluxo minimo:
+Fluxos atuais:
+
+1. `TEST - Telegram Smoke Test`: use primeiro. Se ele falhar, corrija Telegram antes de mexer em feeds.
+2. `PROD - Trump Tariff Alert`: fluxo principal de noticias.
+3. `PROD - Market Reaction Engine`: confirmacao por mercado.
+
+Fluxo minimo de noticias:
 
 1. Schedule Trigger a cada 1-5 minutos.
 2. RSS Read para cada feed.
@@ -53,11 +109,21 @@ Fluxo minimo:
 5. Code node para scoring inicial.
 6. IA para classificacao final usando `prompts/impact_classifier.md`.
 7. IF por `alert_level`.
-8. Telegram para `ORANGE` e `RED`.
-9. WhatsApp apenas para `RED`.
-10. Google Sheets/Postgres para log e calibracao.
+8. Telegram apenas para alertas extremos no MVP.
+9. WhatsApp apenas para `RED`, em etapa futura.
+10. Google Sheets/Postgres para log e calibracao, em etapa futura.
 
-## 4. Sensibilidade
+## 4. Leitura de status
+
+- Se todos os nodes ficam verdes e o Telegram nao dispara, o filtro bloqueou corretamente.
+- Se o Telegram falha, cheque a credencial `Telegram account 2` e o `chat_id`.
+- Se `RSS Read` falha, o problema esta no feed.
+- Se o workflow esta `Active`, ele roda sozinho pelo schedule.
+- Se voce clica `Execute workflow`, e apenas teste manual.
+- O fluxo de noticias tem cooldown global de 30 minutos para evitar rajadas de alertas.
+- O fluxo de noticias roda a cada 30 minutos; o fluxo de mercado roda a cada 30 segundos.
+
+## 5. Sensibilidade
 
 Use `balanced` no comeco.
 
@@ -65,7 +131,20 @@ Use `balanced` no comeco.
 - `balanced`: bom para MVP e validacao.
 - `aggressive`: bom para pesquisa, mas gera falsos positivos.
 
-## 5. Calibracao
+### Brasil Local
+
+Para `Brasil Local`, comece com:
+
+- `Mais conservador`: `RED` apenas
+- `Equilibrado`: `Laranja` + `Vermelho`
+- `Mais agressivo`: `Amarelo` + `Laranja` + `Vermelho`
+
+Sugestão inicial:
+
+- `Laranja` quando a tese local ficar clara, mas ainda precisar de confirmação
+- `Vermelho` quando `DI`, `dólar`, `Copom`, `IPCA`, `Petrobras` ou `Vale` baterem juntos
+
+## 6. Calibracao
 
 Durante 48 horas, registre:
 
@@ -84,3 +163,10 @@ Depois ajuste:
 - threshold de `ORANGE` e `RED`
 - cooldown de duplicados
 
+Para o Brasil Local, acompanhe especificamente:
+
+- `DI` e `dólar`
+- `Copom` e `IPCA`
+- `Tesouro` e `Fazenda`
+- `Petrobras` e `Vale`
+- reação do `WIN` na abertura e na primeira hora

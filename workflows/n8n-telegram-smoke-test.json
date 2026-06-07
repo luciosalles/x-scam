@@ -1,0 +1,87 @@
+{
+  "id": "test-telegram-smoke-test",
+  "name": "TEST - Telegram Smoke Test",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    title: 'Smoke test do Telegram',\n    tendency: 'neutra',\n    conviction: 'teste',\n    winRead: 'Se esta mensagem chegou, o envio Telegram esta funcionando.',\n    dollarRead: 'Sem leitura de mercado neste teste.',\n    nasdaqEsRead: 'Sem leitura de mercado neste teste.',\n    generatedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "build-test-message",
+      "name": "Build Test Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "5043666791",
+        "text": "={{'TEST | TELEGRAM SMOKE TEST\\n\\nTitulo: ' + $json.title + '\\nTendencia: ' + $json.tendency + '\\nConviccao: ' + $json.conviction + '\\n\\nWIN: ' + $json.winRead + '\\nDolar: ' + $json.dollarRead + '\\nNasdaq/ES: ' + $json.nasdaqEsRead + '\\n\\nGerado em: ' + $json.generatedAt}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "telegram-smoke-alert",
+      "name": "Telegram Smoke Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        0
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "YSj1tjuUOLgu1unQ",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Test Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Test Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram Smoke Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-06-05T00:00:00.000Z",
+  "versionId": "starter"
+}

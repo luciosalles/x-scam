@@ -1,5 +1,10 @@
 .n8n/
 node_modules/
+__pycache__/
+**/__pycache__/
 .env
 npm-debug.log*
 workflows/_debug-*.json
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal

@@ -1,0 +1,96 @@
+{
+  "updated": "2026-06-06",
+  "notes": "Paste the RSS.app generated RSS URLs in rss_url. Keep enabled=false until each URL is tested.",
+  "feeds": [
+    {
+      "layer": "policy_monetary",
+      "source_id": "bcb_copom_communications",
+      "name": "BCB - Comunicados do Copom",
+      "page_url": "https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "policy_monetary",
+      "source_id": "bcb_copom_minutes",
+      "name": "BCB - Atas do Copom",
+      "page_url": "https://www.bcb.gov.br/publicacoes/atascopom/cronologicos",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "policy_monetary",
+      "source_id": "bcb_calendar",
+      "name": "BCB - Calendario do BC",
+      "page_url": "https://www.bcb.gov.br/acessoinformacao/calendariobc",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "inflation_activity",
+      "source_id": "ibge_releases_general",
+      "name": "IBGE - Releases gerais",
+      "page_url": "https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa.html?lang=pt-BR",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "inflation_activity",
+      "source_id": "ibge_ipca_tag",
+      "name": "IBGE - Tag IPCA",
+      "page_url": "https://agenciadenoticias.ibge.gov.br/agencia-noticias.html?start=0&tag=IPCA",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "fiscal_policy",
+      "source_id": "tesouro_news",
+      "name": "Tesouro Nacional - Noticias",
+      "page_url": "https://www.gov.br/tesouronacional/pt-br/noticias",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "fiscal_policy",
+      "source_id": "tesouro_rtn",
+      "name": "Tesouro Nacional - RTN",
+      "page_url": "https://www.gov.br/tesouronacional/pt-br/estatisticas-fiscais-e-planejamento/resultado-do-tesouro-nacional-rtn",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "fiscal_policy",
+      "source_id": "fazenda_news",
+      "name": "Ministerio da Fazenda - Noticias",
+      "page_url": "https://www.gov.br/fazenda/pt-br/assuntos/noticias",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "corporate_weights",
+      "source_id": "petrobras_news_agency",
+      "name": "Petrobras - Agencia de Noticias",
+      "page_url": "https://agencia.petrobras.com.br/pt",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    },
+    {
+      "layer": "corporate_weights",
+      "source_id": "vale_investor_market",
+      "name": "Vale - Informacoes para o mercado",
+      "page_url": "https://www.vale.com/pt/informacoes-para-o-mercado",
+      "rss_url": "",
+      "enabled": false,
+      "priority": 1
+    }
+  ]
+}

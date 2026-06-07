@@ -1,0 +1,17 @@
+layer,source_id,name,page_url,rssapp_mode,priority,notes
+policy_monetary,bcb_copom_communications,BCB - Comunicados do Copom,https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos,rss_app_page_monitor,1,Alta prioridade para juros e tom do BC
+policy_monetary,bcb_copom_minutes,BCB - Atas do Copom,https://www.bcb.gov.br/publicacoes/atascopom/cronologicos,rss_app_page_monitor,1,Leitura fina de viés e linguagem futura
+policy_monetary,bcb_calendar,BCB - Calendario do BC,https://www.bcb.gov.br/acessoinformacao/calendariobc,rss_app_page_monitor,1,Agenda oficial de comunicados e eventos
+inflation_activity,ibge_releases_general,IBGE - Releases gerais,https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa.html?lang=pt-BR,rss_app_page_monitor,1,IPCA, IPCA-15, PIB, industria e servicos
+inflation_activity,ibge_ipca_tag,IBGE - Tag IPCA,https://agenciadenoticias.ibge.gov.br/agencia-noticias.html?start=0&tag=IPCA,rss_app_tag_monitor,1,Foco em inflacao oficial
+inflation_activity,ibge_search_ipca15,IBGE - Busca IPCA-15,https://agenciadenoticias.ibge.gov.br/busca-avancada.html?contem=ipca,rss_app_search_monitor,2,Complemento para capturar releases de inflacao
+fiscal_policy,tesouro_news,Tesouro Nacional - Noticias,https://www.gov.br/tesouronacional/pt-br/noticias,rss_app_page_monitor,1,Fiscal, divida, emissao e comunicados
+fiscal_policy,tesouro_rtn,Tesouro Nacional - RTN,https://www.gov.br/tesouronacional/pt-br/estatisticas-fiscais-e-planejamento/resultado-do-tesouro-nacional-rtn,rss_app_page_monitor,1,Resultado do Tesouro Nacional
+fiscal_policy,fazenda_news,Ministério da Fazenda - Noticias,https://www.gov.br/fazenda/pt-br/assuntos/noticias,rss_app_page_monitor,1,Falas, medidas e ruído fiscal
+market_confirmation,b3_ibovespa_futures,B3 - Futuro de Ibovespa,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/futuro-de-ibovespa.htm,page_or_html_monitor,2,Referencia de WIN e IND
+market_confirmation,b3_market_futures,B3 - Mercado Futuro,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/renda-variavel/mercado-de-acoes/mercado-futuro.htm,page_or_html_monitor,2,Mapa dos contratos futuros do Brasil
+market_confirmation,b3_di1_reference,B3 - DI1 / Juros,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/juros/futuro-de-taxa-media-de-depositos-interfinanceiros-de-um-dia.htm,page_or_html_monitor,2,Contexto de juros futuros
+market_confirmation,b3_mini_dolar,B3 - Mini Dolar,https://edu.b3.com.br/w/mini-dolar,page_or_html_monitor,2,Referencia de dolar local
+market_confirmation,b3_petrobras_dollar_index,B3 - Produto de moeda / dolar,https://www.b3.com.br/pt_br/produtos-e-servicos/negociacao/moedas/futuro-mini-de-taxa-de-cambio-de-reais-por-dolar-comercial.htm,page_or_html_monitor,2,Contexto de cambio
+corporate_weights,petrobras_news_agency,Petrobras - Agencia de Noticias,https://agencia.petrobras.com.br/pt,rss_app_page_monitor,1,Dividendos, producao, combustiveis e precificacao
+corporate_weights,vale_investor_market,Vale - Informacoes para o mercado,https://www.vale.com/pt/informacoes-para-o-mercado,rss_app_page_monitor,1,Resultados, comunicados e eventos

@@ -1,8 +1,19 @@
 {
   "id": "market-reaction-engine-starter",
-  "name": "Market Reaction Engine - Starter",
+  "name": "PROD - Market Reaction Engine",
   "active": false,
   "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test-trigger",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -180
+      ]
+    },
     {
       "parameters": {
         "rule": {
@@ -18,11 +29,40 @@
       "name": "Every 30 Seconds",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
-        "url": "https://stooq.com/q/l/?s=es.f+nq.f+gc.f+dx.f&f=sd2t2ohlcv&h&e=csv",
+        "jsCode": "const sourceMode = 'yahoo'; // troque para 'stooq' se quiser testar o fallback\nif (sourceMode === 'stooq') {\n  return [\n    { json: { symbol: 'ES.F', label: 'ES', sourceMode, url: 'https://stooq.com/q/l/?s=es.f&f=sd2t2ohlcv&h&e=csv' } },\n    { json: { symbol: 'NQ.F', label: 'NQ', sourceMode, url: 'https://stooq.com/q/l/?s=nq.f&f=sd2t2ohlcv&h&e=csv' } },\n    { json: { symbol: 'GC.F', label: 'Gold', sourceMode, url: 'https://stooq.com/q/l/?s=gc.f&f=sd2t2ohlcv&h&e=csv' } },\n    { json: { symbol: 'DX.F', label: 'DXY', sourceMode, url: 'https://stooq.com/q/l/?s=dx.f&f=sd2t2ohlcv&h&e=csv' } }\n  ];\n}\nreturn [\n  { json: { symbol: 'ES=F', label: 'ES', sourceMode: 'yahoo', url: 'https://query1.finance.yahoo.com/v8/finance/chart/ES=F?interval=1d&range=5d' } },\n  { json: { symbol: 'NQ=F', label: 'NQ', sourceMode: 'yahoo', url: 'https://query1.finance.yahoo.com/v8/finance/chart/NQ=F?interval=1d&range=5d' } },\n  { json: { symbol: 'GC=F', label: 'Gold', sourceMode: 'yahoo', url: 'https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=5d' } },\n  { json: { symbol: 'DX-Y.NYB', label: 'DXY', sourceMode: 'yahoo', url: 'https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=5d' } }\n];"
+      },
+      "id": "market-symbols",
+      "name": "Market Symbols",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{\n  json: {\n    regime: 'TEST_DISCORD',\n    intensity: 'moderada',\n    trendText: 'teste controlado de canal',\n    conviction: 'baixa',\n    whatChanged: 'Saida sintetica para validar o Discord',\n    winPlan: 'Teste de entrega apenas',\n    dollarPlan: 'Sem leitura real',\n    usPlan: 'Sem leitura real',\n    score: 1,\n    eventType: 'test',\n    quoteLines: 'ES: mock\\nNQ: mock\\nGold: mock\\nDXY: mock',\n    reasons: 'test de entrega',\n    source: 'test',\n    generatedAt: new Date().toISOString(),\n    note: 'Discord test payload',\n    discordText: '**MARKET REACTION | TEST_DISCORD**\\n\\n**Regime:** TEST_DISCORD\\n**Intensidade:** moderada\\n**Tendencia:** teste controlado de canal\\n**Conviccao:** baixa\\n\\n**O que mudou:** Saida sintetica para validar o Discord\\n\\n**Plano WIN:** Teste de entrega apenas\\n**Plano Dolar:** Sem leitura real\\n**Plano Nasdaq/ES:** Sem leitura real\\n\\n**Score:** 1/140\\n**Leituras:**\\nES: mock\\nNQ: mock\\nGold: mock\\nDXY: mock\\n\\n**Motivo:** test de entrega\\n**Fonte:** test'\n  }\n}];"
+      },
+      "id": "build-discord-test",
+      "name": "Build Discord Test",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -44,17 +84,23 @@
       "name": "Fetch Market CSV",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [260, 0]
+      "position": [
+        520,
+        0
+      ]
     },
     {
       "parameters": {
-        "jsCode": "const csv = $json.data || $json.body || $json;\nif (!csv || typeof csv !== 'string') return [];\nconst lines = csv.trim().split(/\\r?\\n/);\nconst rows = lines.slice(1).map(line => line.split(','));\nconst labels = {\n  'ES.F': 'ES',\n  'NQ.F': 'NQ',\n  'GC.F': 'Gold',\n  'DX.F': 'DXY'\n};\nconst quotes = rows\n  .filter(row => row.length >= 7 && row[1] !== 'N/D')\n  .map(row => {\n    const [symbol, date, time, open, high, low, close] = row;\n    const openNum = Number(open);\n    const closeNum = Number(close);\n    const pctFromOpen = openNum ? ((closeNum - openNum) / openNum) * 100 : 0;\n    return {\n      symbol,\n      label: labels[symbol] || symbol,\n      date,\n      time,\n      open: openNum,\n      high: Number(high),\n      low: Number(low),\n      close: closeNum,\n      pctFromOpen: Math.round(pctFromOpen * 100) / 100\n    };\n  });\nif (!quotes.length) return [];\nconst by = Object.fromEntries(quotes.map(q => [q.label, q]));\nlet score = 0;\nconst reasons = [];\nconst es = by.ES;\nconst nq = by.NQ;\nconst dxy = by.DXY;\nconst gold = by.Gold;\nif (es?.pctFromOpen <= -0.4) { score += 25; reasons.push(`ES weak ${es.pctFromOpen}%`); }\nif (es?.pctFromOpen <= -0.8) score += 20;\nif (nq?.pctFromOpen <= -0.6) { score += 25; reasons.push(`NQ weak ${nq.pctFromOpen}%`); }\nif (nq?.pctFromOpen <= -1.2) score += 20;\nif (dxy?.pctFromOpen >= 0.15) { score += 15; reasons.push(`DXY firm ${dxy.pctFromOpen}%`); }\nif (dxy?.pctFromOpen >= 0.35) score += 10;\nif (gold?.pctFromOpen >= 0.3) { score += 15; reasons.push(`Gold bid ${gold.pctFromOpen}%`); }\nif (gold?.pctFromOpen >= 0.7) score += 10;\nconst equitiesRiskOff = (es?.pctFromOpen <= -0.4 ? 1 : 0) + (nq?.pctFromOpen <= -0.6 ? 1 : 0);\nconst safeHavenConfirm = (dxy?.pctFromOpen >= 0.15 ? 1 : 0) + (gold?.pctFromOpen >= 0.3 ? 1 : 0);\nif (equitiesRiskOff >= 1 && safeHavenConfirm >= 1) { score += 20; reasons.push('Risk-off confluence'); }\nif (equitiesRiskOff === 2) { score += 15; reasons.push('ES and NQ both weak'); }\nlet direction = 'neutral';\nif (score >= 85) direction = 'risk_off';\nlet riskOnScore = 0;\nconst riskOnReasons = [];\nif (es?.pctFromOpen >= 0.45) { riskOnScore += 25; riskOnReasons.push(`ES strong ${es.pctFromOpen}%`); }\nif (nq?.pctFromOpen >= 0.65) { riskOnScore += 25; riskOnReasons.push(`NQ strong ${nq.pctFromOpen}%`); }\nif (dxy?.pctFromOpen <= -0.15) { riskOnScore += 15; riskOnReasons.push(`DXY softer ${dxy.pctFromOpen}%`); }\nif (gold?.pctFromOpen <= -0.3) { riskOnScore += 10; riskOnReasons.push(`Gold softer ${gold.pctFromOpen}%`); }\nif ((es?.pctFromOpen >= 0.45 || nq?.pctFromOpen >= 0.65) && dxy?.pctFromOpen <= -0.15) riskOnScore += 20;\nif (riskOnScore > score) {\n  score = riskOnScore;\n  direction = score >= 85 ? 'risk_on' : 'neutral';\n  reasons.splice(0, reasons.length, ...riskOnReasons);\n}\nscore = Math.min(140, score);\nconst staticData = $getWorkflowStaticData('global');\nconst now = Date.now();\nconst cooldownMs = 15 * 60 * 1000;\nconst key = `${direction}|${quotes.map(q => `${q.label}:${Math.round(q.pctFromOpen * 10) / 10}`).join('|')}`;\nif (direction === 'neutral' || score < 85) return [];\nif (staticData.lastAlertKey === key && now - (staticData.lastAlertAt || 0) < cooldownMs) return [];\nstaticData.lastAlertKey = key;\nstaticData.lastAlertAt = now;\nconst quoteLines = quotes.map(q => `${q.label}: ${q.close} (${q.pctFromOpen}%)`).join('\\n');\nreturn [{\n  json: {\n    direction,\n    score,\n    quoteLines,\n    reasons: reasons.join('; '),\n    source: 'Stooq delayed CSV',\n    generatedAt: new Date().toISOString(),\n    note: 'US10Y is intentionally not used until a reliable intraday source is configured.'\n  }\n}];"
+        "jsCode": "const sourceMode = String($items('Market Symbols', 0, 0)[0]?.json?.sourceMode || 'yahoo').toLowerCase();\nconst parseYahoo = text => {\n  const json = JSON.parse(text);\n  const result = json?.chart?.result?.[0];\n  const meta = result?.meta;\n  if (!meta) return null;\n  const closeNum = Number(meta.regularMarketPrice);\n  const prevClose = Number(meta.chartPreviousClose);\n  if (!Number.isFinite(closeNum) || !Number.isFinite(prevClose) || prevClose === 0) return null;\n  return {\n    label: meta.symbol,\n    close: closeNum,\n    previousClose: prevClose,\n    high: Number(meta.regularMarketDayHigh),\n    low: Number(meta.regularMarketDayLow),\n    volume: Number(meta.regularMarketVolume || 0),\n    marketTs: Number(meta.regularMarketTime || 0) * 1000,\n    pctFromPrevClose: Math.round((((closeNum - prevClose) / prevClose) * 100) * 100) / 100\n  };\n};\nconst parseStooq = text => {\n  const lines = String(text || '').trim().split(/\\r?\\n/);\n  if (lines.length < 2) return null;\n  const row = lines[1].split(',');\n  if (row.length < 7 || row[1] === 'N/D') return null;\n  const [symbol, date, time, open, high, low, close] = row;\n  const openNum = Number(open);\n  const closeNum = Number(close);\n  if (!Number.isFinite(openNum) || !Number.isFinite(closeNum) || openNum === 0) return null;\n  return {\n    label: symbol,\n    close: closeNum,\n    previousClose: openNum,\n    high: Number(high),\n    low: Number(low),\n    volume: 0,\n    marketTs: Date.now(),\n    pctFromPrevClose: Math.round((((closeNum - openNum) / openNum) * 100) * 100) / 100\n  };\n};\nconst labels = {\n  'ES=F': 'ES',\n  'ES.F': 'ES',\n  'NQ=F': 'NQ',\n  'NQ.F': 'NQ',\n  'GC=F': 'Gold',\n  'GC.F': 'Gold',\n  'DX-Y.NYB': 'DXY',\n  'DX.F': 'DXY'\n};\nconst quotes = [];\nfor (const item of items) {\n  const rawText = typeof item.json === 'string' ? item.json : JSON.stringify(item.json);\n  let parsed = null;\n  if (sourceMode === 'stooq') {\n    parsed = parseStooq(rawText);\n  } else {\n    parsed = parseYahoo(rawText);\n  }\n  if (!parsed) continue;\n  const label = labels[parsed.label] || labels[item.json.symbol] || item.json.label || parsed.label;\n  quotes.push({ ...parsed, label, symbol: item.json.symbol || parsed.label });\n}\nif (!quotes.length) return [];\nconst freshestTs = Math.max(...quotes.map(q => q.marketTs || 0));\nif (!freshestTs || Date.now() - freshestTs > 12 * 60 * 60 * 1000) return [];\nconst by = Object.fromEntries(quotes.map(q => [q.label, q]));\nconst es = by.ES;\nconst nq = by.NQ;\nconst dxy = by.DXY;\nconst gold = by.Gold;\nlet riskOffScore = 0;\nconst riskOffReasons = [];\nif (es?.pctFromPrevClose <= -0.4) { riskOffScore += 25; riskOffReasons.push(`ES weak ${es.pctFromPrevClose}%`); }\nif (es?.pctFromPrevClose <= -0.8) riskOffScore += 20;\nif (es?.pctFromPrevClose <= -1.5) riskOffScore += 15;\nif (nq?.pctFromPrevClose <= -0.6) { riskOffScore += 25; riskOffReasons.push(`NQ weak ${nq.pctFromPrevClose}%`); }\nif (nq?.pctFromPrevClose <= -1.2) riskOffScore += 20;\nif (nq?.pctFromPrevClose <= -2.5) riskOffScore += 15;\nif (dxy?.pctFromPrevClose >= 0.15) { riskOffScore += 15; riskOffReasons.push(`DXY firm ${dxy.pctFromPrevClose}%`); }\nif (dxy?.pctFromPrevClose >= 0.35) riskOffScore += 10;\nif (gold?.pctFromPrevClose >= 0.3) { riskOffScore += 15; riskOffReasons.push(`Gold bid ${gold.pctFromPrevClose}%`); }\nif (gold?.pctFromPrevClose >= 0.7) riskOffScore += 10;\nconst equitiesRiskOff = (es?.pctFromPrevClose <= -0.4 ? 1 : 0) + (nq?.pctFromPrevClose <= -0.6 ? 1 : 0);\nconst safeHavenConfirm = (dxy?.pctFromPrevClose >= 0.15 ? 1 : 0) + (gold?.pctFromPrevClose >= 0.3 ? 1 : 0);\nif (equitiesRiskOff >= 1 && safeHavenConfirm >= 1) { riskOffScore += 20; riskOffReasons.push('Risk-off confluence'); }\nif (equitiesRiskOff === 2) { riskOffScore += 15; riskOffReasons.push('ES and NQ both weak'); }\nlet riskOnScore = 0;\nconst riskOnReasons = [];\nif (es?.pctFromPrevClose >= 0.45) { riskOnScore += 25; riskOnReasons.push(`ES strong ${es.pctFromPrevClose}%`); }\nif (es?.pctFromPrevClose >= 1.0) riskOnScore += 15;\nif (nq?.pctFromPrevClose >= 0.65) { riskOnScore += 25; riskOnReasons.push(`NQ strong ${nq.pctFromPrevClose}%`); }\nif (nq?.pctFromPrevClose >= 1.5) riskOnScore += 15;\nif (dxy?.pctFromPrevClose <= -0.15) { riskOnScore += 15; riskOnReasons.push(`DXY softer ${dxy.pctFromPrevClose}%`); }\nif (dxy?.pctFromPrevClose <= -0.35) riskOnScore += 10;\nif (gold?.pctFromPrevClose <= -0.3) { riskOnScore += 10; riskOnReasons.push(`Gold softer ${gold.pctFromPrevClose}%`); }\nif ((es?.pctFromPrevClose >= 0.45 || nq?.pctFromPrevClose >= 0.65) && dxy?.pctFromPrevClose <= -0.15) { riskOnScore += 20; riskOnReasons.push('Risk-on confluence'); }\nlet direction = 'neutral';\nlet score = 0;\nlet reasons = [];\nif (riskOffScore >= riskOnScore && riskOffScore >= 85) {\n  direction = 'risk_off';\n  score = riskOffScore;\n  reasons = riskOffReasons;\n} else if (riskOnScore > riskOffScore && riskOnScore >= 85) {\n  direction = 'risk_on';\n  score = riskOnScore;\n  reasons = riskOnReasons;\n}\nscore = Math.min(140, score);\nif (direction === 'neutral' || score < 100) return [];\nconst staticData = $getWorkflowStaticData('global');\nconst materialDelta = 20;\nconst sameDirection = staticData.lastDirection === direction;\nconst lastScore = Number(staticData.lastScore || 0);\nconst previousDirection = staticData.lastDirection || '';\nlet eventType = 'new_regime';\nlet shouldSend = false;\nif (!sameDirection) {\n  shouldSend = true;\n  eventType = previousDirection ? 'reversal' : 'new_regime';\n} else if (score >= lastScore + materialDelta) {\n  shouldSend = true;\n  eventType = 'material_worsening';\n}\nif (!shouldSend) return [];\nstaticData.lastDirection = direction;\nstaticData.lastScore = score;\nstaticData.lastAlertAt = Date.now();\nconst quoteLines = quotes.map(q => `${q.label}: ${q.close} (${q.pctFromPrevClose}%)`).join('\\n');\nconst regime = direction === 'risk_off' ? 'RISK_OFF' : 'RISK_ON';\nconst intensity = score >= 125 ? 'extrema' : score >= 110 ? 'forte' : 'moderada';\nconst trendText = direction === 'risk_off' ? 'pressao vendedora em indice futuro Brasil' : 'alivio comprador em indice futuro Brasil';\nconst conviction = score >= 125 ? 'alta' : 'media-alta';\nlet whatChanged = '';\nif (eventType === 'new_regime') whatChanged = `Novo regime detectado: ${regime}.`;\nelse if (eventType === 'reversal') whatChanged = `Reversao de ${previousDirection ? previousDirection.toUpperCase() : 'NEUTRAL'} para ${regime}.`;\nelse whatChanged = `Mesmo regime, mas score subiu de ${lastScore} para ${score}.`;\nconst winPlan = direction === 'risk_off' ? 'Priorize venda so se perder VWAP e a minima da abertura com dolar confirmando alta.' : 'Priorize compra so se sustentar VWAP e romper a maxima da abertura com dolar cedendo.';\nconst dollarPlan = direction === 'risk_off' ? 'Dolar deve confirmar fluxo defensivo. Se nao subir, a leitura perde qualidade.' : 'Dolar deve aliviar. Se nao ceder, a leitura compradora perde qualidade.';\nconst usPlan = direction === 'risk_off' ? 'ES/NQ devem permanecer negativos para validar continuidade do risk-off.' : 'ES/NQ devem sustentar alta para validar continuidade do risk-on.';\nconst discordText = `**MARKET REACTION | ${regime}${eventType === 'reversal' ? ' | REVERSAL' : eventType === 'material_worsening' ? ' | UPDATE' : ''}**\\n\\n**Regime:** ${regime}\\n**Intensidade:** ${intensity}\\n**Tendencia:** ${trendText}\\n**Conviccao:** ${conviction}\\n\\n**O que mudou:** ${whatChanged}\\n\\n**Plano WIN:** ${winPlan}\\n**Plano Dolar:** ${dollarPlan}\\n**Plano Nasdaq/ES:** ${usPlan}\\n\\n**Score:** ${score}/140\\n**Leituras:**\\n${quoteLines}\\n\\n**Motivo:** ${reasons.join('; ')}\\n**Fonte:** ${sourceMode === 'stooq' ? 'Stooq' : 'Yahoo Finance chart endpoint'}`;\nreturn [{ json: { direction, regime, intensity, trendText, conviction, whatChanged, winPlan, dollarPlan, usPlan, score, eventType, quoteLines, reasons: reasons.join('; '), source: sourceMode === 'stooq' ? 'Stooq' : 'Yahoo Finance chart endpoint', generatedAt: new Date().toISOString(), note: 'Stale-data guard enabled.', discordText } }];"
       },
       "id": "score-market-snapshot",
       "name": "Score Market Snapshot",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [520, 0]
+      "position": [
+        760,
+        0
+      ]
     },
     {
       "parameters": {
@@ -68,7 +114,7 @@
             {
               "id": "market-score-threshold",
               "leftValue": "={{$json.score}}",
-              "rightValue": 85,
+              "rightValue": 100,
               "operator": {
                 "type": "number",
                 "operation": "gte"
@@ -83,26 +129,122 @@
       "name": "IF Market Alert Worthy",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [760, 0]
+      "position": [
+        1000,
+        0
+      ]
     },
     {
       "parameters": {
         "chatId": "5043666791",
-        "text": "={{'MARKET REACTION | ' + $json.direction.toUpperCase() + '\\nScore: ' + $json.score + '/140\\n' + $json.quoteLines + '\\n\\nWhy: ' + $json.reasons + '\\nSource: ' + $json.source + '\\n' + $json.note}}"
+        "text": "={{'MARKET REACTION | ' + $json.regime + ($json.eventType === 'reversal' ? ' | REVERSAL' : $json.eventType === 'material_worsening' ? ' | UPDATE' : '') + '\\n\\nRegime: ' + $json.regime + '\\nIntensidade: ' + $json.intensity + '\\nTendencia: ' + $json.trendText + '\\nConviccao: ' + $json.conviction + '\\n\\nO que mudou: ' + $json.whatChanged + '\\n\\nPlano WIN: ' + $json.winPlan + '\\nPlano Dolar: ' + $json.dollarPlan + '\\nPlano Nasdaq/ES: ' + $json.usPlan + '\\n\\nScore: ' + $json.score + '/140\\nLeituras:\\n' + $json.quoteLines + '\\n\\nMotivo: ' + $json.reasons + '\\nFonte: ' + $json.source}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
       },
       "id": "telegram-market-alert",
       "name": "Telegram Market Alert",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [1000, -100]
+      "position": [
+        1240,
+        -100
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "YSj1tjuUOLgu1unQ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.DISCORD_WEBHOOK_URL}}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { content: $json.discordText } }}",
+        "options": {}
+      },
+      "id": "discord-market-alert",
+      "name": "Discord Market Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/api/alerts",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { alert_type: 'market', level: $json.regime, regime: $json.regime, score: $json.score, title: 'Market Reaction | ' + $json.regime, source: $json.source, tendency: $json.trendText, conviction: $json.conviction, win_read: $json.winPlan, dollar_read: $json.dollarPlan, us_read: $json.usPlan, reason: $json.reasons, channels: ['telegram', 'discord'] } }}",
+        "options": {}
+      },
+      "id": "record-market-alert",
+      "name": "Record Market Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        260
+      ]
     }
   ],
   "connections": {
+    "Manual Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Market Symbols",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Discord Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Every 30 Seconds": {
       "main": [
         [
           {
+            "node": "Market Symbols",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Market Symbols": {
+      "main": [
+        [
+          {
             "node": "Fetch Market CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Discord Test": {
+      "main": [
+        [
+          {
+            "node": "Discord Market Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Record Market Alert",
             "type": "main",
             "index": 0
           }
@@ -136,6 +278,11 @@
         [
           {
             "node": "Telegram Market Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Discord Market Alert",
             "type": "main",
             "index": 0
           }

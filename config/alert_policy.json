@@ -1,5 +1,13 @@
 {
   "updated": "2026-06-04",
+  "displayLabels": {
+    "GREEN": "Sem sinal",
+    "YELLOW": "Atenção",
+    "ORANGE": "Laranja",
+    "RED": "Vermelho",
+    "RISK_ON": "Viés de alta",
+    "RISK_OFF": "Viés de baixa"
+  },
   "sensitivityProfiles": {
     "conservative": {
       "minScore": 78,
@@ -21,6 +29,35 @@
       "requireOfficialOrTwoSources": false,
       "cooldownMinutesByFingerprint": 15,
       "useCase": "Mais sinais, mais falsos positivos; bom para calibrar."
+    }
+  },
+  "brazilLocalThresholds": {
+    "monitor": 50,
+    "orange": 70,
+    "red": 85,
+    "notes": "Score interno permanece técnico; a UI deve mostrar apenas tendencia, conviccao e leitura operacional."
+  },
+  "brazilLocalProfiles": {
+    "conservative": {
+      "minScore": 80,
+      "minConfidence": 0.7,
+      "requireOfficialOrTwoSources": true,
+      "cooldownMinutesByFingerprint": 45,
+      "useCase": "Cliente pagante que quer pouco ruido e mais confirmacao."
+    },
+    "balanced": {
+      "minScore": 68,
+      "minConfidence": 0.6,
+      "requireOfficialOrTwoSources": false,
+      "cooldownMinutesByFingerprint": 30,
+      "useCase": "MVP padrao para Brasil Local."
+    },
+    "aggressive": {
+      "minScore": 55,
+      "minConfidence": 0.5,
+      "requireOfficialOrTwoSources": false,
+      "cooldownMinutesByFingerprint": 15,
+      "useCase": "Calibracao e pesquisa, mais sinais e mais ruido."
     }
   },
   "alertLevels": [
@@ -179,4 +216,3 @@
     "sameSourcePenalty": 18
   }
 }
-

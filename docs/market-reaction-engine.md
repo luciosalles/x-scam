@@ -2,6 +2,9 @@
 
 Este workflow monitora reacao de mercado a cada 30 segundos e deve rodar separado do fluxo de noticias.
 
+Fonte de verdade operacional:
+- [Alert Map](C:/Users/scorpion/Documents/X-Scam/docs/alert-map.md)
+
 ## Fonte atual
 
 MVP usa Stooq CSV:
@@ -27,7 +30,20 @@ O workflow so envia Telegram quando existe confluencia forte:
 - DXY ou Gold confirmando stress
 - ou movimento risk-on forte com DXY cedendo
 
-Tambem existe cooldown de 15 minutos para evitar spam.
+Tambem existe cooldown de 30 minutos para evitar spam.
+
+## Como saber se funcionou
+
+- `Fetch Market CSV` verde com 1 item: a fonte Stooq respondeu.
+- `Score Market Snapshot` verde com 0 itens: o mercado foi lido, mas nao houve confluencia forte.
+- `Telegram Market Alert` verde: alerta real enviado.
+- `Node was not executed` depois do `IF`: normal quando o score ficou abaixo do limite.
+
+Threshold atual:
+
+```text
+score >= 100
+```
 
 ## Uso correto
 
@@ -44,4 +60,3 @@ Resultado: alerta RED com mais confianca.
 ## Limitacao
 
 Stooq pode ter atraso e nao deve ser vendido como dado institucional em tempo real. Para clientes pagos, considere Polygon, Twelve Data, MarketData.app, Tradier, Interactive Brokers, dxFeed, Rithmic, TradingView ou broker API.
-

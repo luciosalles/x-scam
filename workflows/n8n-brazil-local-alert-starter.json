@@ -1,0 +1,246 @@
+{
+  "id": "brazil-local-alert-starter",
+  "name": "PROD - Brazil Local Alert",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test-trigger",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, -220]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 10 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 40]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = {\n  alert_type: 'brazil_local',\n  regime: 'BR_LOCAL',\n  level: 'ORANGE',\n  levelLabel: 'LARANJA',\n  score: 84,\n  title: 'Brazil Local Macro Watch',\n  tendency: 'pressao vendedora local se juros e dolar seguirem firmes',\n  conviction: 'media-alta',\n  win_read: 'WIN tende a perder suporte se DI e dolar subirem juntos.',\n  dollar_read: 'Dolar confirma fluxo defensivo se houver piora fiscal ou BC mais duro.',\n  us_read: 'Sinal externo ajuda, mas o motor principal aqui e domestico.',\n  confirmation: 'Confirmar com DI subindo, dolar firme, Petrobras/Vale fracas e WIN abaixo da VWAP.',\n  invalidation: 'Invalida se DI aliviar, dolar cair e WIN sustentar VWAP com fluxo comprador.',\n  reason: 'Smoke test operacional para validar Brasil Local.',\n  source: 'brazil-local-smoke',\n  link: '',\n  channels: ['telegram', 'dashboard'],\n  generatedAt: new Date().toISOString()\n};\npayload.discordText = `**BRASIL LOCAL | ${payload.levelLabel}**\\n\\n**Titulo:** ${payload.title}\\n**Tendencia:** ${payload.tendency}\\n**Conviccao:** ${payload.conviction}\\n\\n**Leitura WIN:** ${payload.win_read}\\n**Leitura Dolar:** ${payload.dollar_read}\\n**Leitura global:** ${payload.us_read}\\n\\n**Confirmar:** ${payload.confirmation}\\n**Invalidar:** ${payload.invalidation}\\n\\n**Motivo:** ${payload.reason}`;\nreturn [{ json: payload }];"
+      },
+      "id": "build-brazil-local-smoke",
+      "name": "Build Brazil Local Smoke",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, -220]
+    },
+    {
+      "parameters": {
+        "jsCode": "const feeds = [\n  { layer: 'policy_monetary', sourceId: 'bcb_copom_communications', sourceName: 'BCB - Comunicados do Copom', feedUrl: '', weight: 95 },\n  { layer: 'policy_monetary', sourceId: 'bcb_copom_minutes', sourceName: 'BCB - Atas do Copom', feedUrl: '', weight: 92 },\n  { layer: 'policy_monetary', sourceId: 'bcb_calendar', sourceName: 'BCB - Calendario do BC', feedUrl: '', weight: 80 },\n  { layer: 'inflation_activity', sourceId: 'ibge_releases_general', sourceName: 'IBGE - Releases gerais', feedUrl: '', weight: 90 },\n  { layer: 'inflation_activity', sourceId: 'ibge_ipca_tag', sourceName: 'IBGE - Tag IPCA', feedUrl: '', weight: 92 },\n  { layer: 'fiscal_policy', sourceId: 'tesouro_news', sourceName: 'Tesouro Nacional - Noticias', feedUrl: '', weight: 84 },\n  { layer: 'fiscal_policy', sourceId: 'tesouro_rtn', sourceName: 'Tesouro Nacional - RTN', feedUrl: '', weight: 86 },\n  { layer: 'fiscal_policy', sourceId: 'fazenda_news', sourceName: 'Ministerio da Fazenda - Noticias', feedUrl: '', weight: 86 },\n  { layer: 'corporate_weights', sourceId: 'petrobras_news_agency', sourceName: 'Petrobras - Agencia de Noticias', feedUrl: '', weight: 78 },\n  { layer: 'corporate_weights', sourceId: 'vale_investor_market', sourceName: 'Vale - Informacoes para o mercado', feedUrl: '', weight: 78 }\n];\n\n// Paste RSS.app generated URLs into feedUrl. Empty feeds are ignored, so the schedule remains safe before setup.\nreturn feeds\n  .filter(feed => /^https?:\\/\\//i.test(String(feed.feedUrl || '')))\n  .map(feed => ({ json: feed }));"
+      },
+      "id": "brazil-local-feeds",
+      "name": "Brazil Local Feeds",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, 40]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.feedUrl}}"
+      },
+      "id": "brazil-local-rss-read",
+      "name": "Brazil Local RSS Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [540, 40]
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nstaticData.seen = staticData.seen || {};\nconst now = Date.now();\nconst ttlMs = 6 * 60 * 60 * 1000;\n\nconst containsAny = (text, terms) => terms.some(term => text.includes(term));\nconst countHits = (text, terms) => terms.filter(term => text.includes(term)).length;\nconst clean = value => String(value || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim();\n\nconst hawkishTerms = ['copom', 'selic', 'juros', 'banco central', 'bc', 'inflacao', 'ipca', 'ipca-15', 'expectativas', 'desancoragem', 'ata', 'comunicado'];\nconst fiscalTerms = ['fiscal', 'deficit', 'superavit', 'arcabouco', 'tesouro', 'fazenda', 'divida', 'arrecadacao', 'contingenciamento', 'meta fiscal', 'resultado primario'];\nconst corporateTerms = ['petrobras', 'petr4', 'combustiveis', 'dividendos', 'vale', 'vale3', 'minerio', 'china'];\nconst stressTerms = ['piora', 'acima do esperado', 'pressiona', 'alta', 'aumento', 'risco', 'alerta', 'revisao', 'bloqueio', 'corte de gastos', 'queda de arrecadacao'];\nconst reliefTerms = ['melhora', 'abaixo do esperado', 'alivia', 'queda', 'corte de juros', 'reduz', 'superavit', 'desacelera', 'acordo', 'recuo'];\n\nconst candidates = [];\nfor (const item of items) {\n  const j = item.json || {};\n  const title = clean(j.title || j.name);\n  const summary = clean(j.contentSnippet || j.content || j.description || j.summary);\n  const link = String(j.link || j.guid || '').trim();\n  const text = `${title} ${summary}`.toLowerCase();\n  const publishedRaw = j.isoDate || j.pubDate || j.pubdate || j.published || '';\n  const publishedAt = publishedRaw ? new Date(publishedRaw) : null;\n  const publishedTs = publishedAt && !Number.isNaN(publishedAt.getTime()) ? publishedAt.getTime() : now;\n  const ageHours = Math.max(0, (now - publishedTs) / 3600000);\n  if (!title || ageHours > 72) continue;\n\n  const hawkishHits = countHits(text, hawkishTerms);\n  const fiscalHits = countHits(text, fiscalTerms);\n  const corporateHits = countHits(text, corporateTerms);\n  const stressHits = countHits(text, stressTerms);\n  const reliefHits = countHits(text, reliefTerms);\n\n  let score = 30;\n  score += Math.min(hawkishHits, 3) * 16;\n  score += Math.min(fiscalHits, 3) * 15;\n  score += Math.min(corporateHits, 2) * 10;\n  score += Math.min(stressHits, 2) * 12;\n  score += Math.min(reliefHits, 2) * 8;\n  if ((hawkishHits || fiscalHits) && stressHits) score += 18;\n  if (hawkishHits && fiscalHits) score += 12;\n  if (ageHours <= 1) score += 16;\n  else if (ageHours <= 4) score += 10;\n  else if (ageHours <= 12) score += 5;\n  else if (ageHours > 48) score -= 20;\n  score = Math.max(0, Math.min(140, score));\n\n  const isRelief = reliefHits > stressHits;\n  const level = score >= 85 ? 'RED' : score >= 70 ? 'ORANGE' : score >= 55 ? 'YELLOW' : 'GREEN';\n  const levelLabel = level === 'RED' ? 'VERMELHO' : level === 'ORANGE' ? 'LARANJA' : level === 'YELLOW' ? 'ATENCAO' : 'SEM SINAL';\n  const tendency = isRelief ? 'vies de alta para WIN se dolar e DI confirmarem alivio' : 'pressao vendedora para WIN se dolar e DI seguirem firmes';\n  const conviction = score >= 95 ? 'alta' : score >= 70 ? 'media-alta' : 'baixa';\n  const win_read = isRelief\n    ? 'WIN pode buscar alta se sustentar VWAP e romper maxima da abertura com dolar cedendo.'\n    : 'WIN tende a sofrer se perder VWAP/minima da abertura com dolar e DI subindo.';\n  const dollar_read = isRelief\n    ? 'Dolar pode aliviar se a leitura reduzir risco fiscal, inflacionario ou de juros.'\n    : 'Dolar pode ganhar forca se a noticia aumentar risco fiscal, inflacao ou juros.';\n  const us_read = 'Global entra como confirmacao secundaria; o gatilho aqui e Brasil Local.';\n  const confirmation = isRelief\n    ? 'Confirmar com DI caindo, dolar cedendo e WIN acima da VWAP.'\n    : 'Confirmar com DI subindo, dolar firme e WIN abaixo da VWAP.';\n  const invalidation = isRelief\n    ? 'Invalida se dolar voltar a subir e WIN perder VWAP.'\n    : 'Invalida se DI e dolar aliviarem e WIN recuperar VWAP.';\n  const reason = isRelief\n    ? 'Noticia local com potencial de alivio em juros, fiscal, inflacao ou pesos do indice.'\n    : 'Noticia local com potencial de pressionar juros, dolar, fiscal ou pesos do indice.';\n\n  const key = `${title.toLowerCase()}|${link}`;\n  const seenAt = staticData.seen[key];\n  if (seenAt && now - seenAt < ttlMs) continue;\n\n  candidates.push({ json: {\n    alert_type: 'brazil_local', regime: 'BR_LOCAL', level, levelLabel, score,\n    title, normalizedTitle: title, summary, link, ageHours: Math.round(ageHours * 10) / 10,\n    tendency, conviction, win_read, dollar_read, us_read, confirmation, invalidation, reason,\n    source: j.creator || j.source || 'RSS.app Brazil Local', channels: ['telegram', 'dashboard'], generatedAt: new Date().toISOString(), dedupeKey: key\n  }});\n}\n\nfor (const [key, ts] of Object.entries(staticData.seen)) {\n  if (now - ts > ttlMs) delete staticData.seen[key];\n}\n\nconst actionable = candidates.filter(item => item.json.score >= 55);\nif (!actionable.length) return [];\nactionable.sort((a, b) => (b.json.score - a.json.score) || (a.json.ageHours - b.json.ageHours));\nconst winner = actionable[0];\nstaticData.seen[winner.json.dedupeKey] = now;\nwinner.json.discordText = `**BRASIL LOCAL | ${winner.json.levelLabel}**\\n\\n**Titulo:** ${winner.json.title}\\n**Tendencia:** ${winner.json.tendency}\\n**Conviccao:** ${winner.json.conviction}\\n\\n**Leitura WIN:** ${winner.json.win_read}\\n**Leitura Dolar:** ${winner.json.dollar_read}\\n**Leitura global:** ${winner.json.us_read}\\n\\n**Confirmar:** ${winner.json.confirmation}\\n**Invalidar:** ${winner.json.invalidation}\\n\\n**Fonte:** ${winner.json.source}\\n**Link:** ${winner.json.link || '-'}\\n**Motivo:** ${winner.json.reason}`;\nreturn [winner];"
+      },
+      "id": "score-brazil-local-rss",
+      "name": "Score Brazil Local RSS",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 40]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "brazil-score-threshold",
+              "leftValue": "={{$json.score}}",
+              "rightValue": 70,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-brazil-alert",
+      "name": "IF Brazil Alert Worthy",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1060, -90]
+    },
+    {
+      "parameters": {
+        "chatId": "5043666791",
+        "text": "={{'BRASIL LOCAL | ' + ($json.levelLabel || $json.level) + '\\n\\nTitulo: ' + $json.title + '\\nTendencia: ' + $json.tendency + '\\nConviccao: ' + $json.conviction + '\\n\\nLeitura WIN: ' + $json.win_read + '\\nLeitura Dolar: ' + $json.dollar_read + '\\nLeitura global: ' + $json.us_read + '\\n\\nConfirmar: ' + $json.confirmation + '\\nInvalidar: ' + $json.invalidation + '\\n\\nFonte: ' + ($json.source || 'RSS.app Brazil Local') + ($json.link ? '\\nLink: ' + $json.link : '') + '\\nMotivo: ' + $json.reason}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "telegram-brazil-local-alert",
+      "name": "Telegram Brazil Local Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1320, -210],
+      "credentials": {
+        "telegramApi": {
+          "id": "YSj1tjuUOLgu1unQ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "PASTE_DISCORD_WEBHOOK_URL_HERE",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { content: $json.discordText } }}",
+        "options": {}
+      },
+      "id": "discord-brazil-local-alert",
+      "name": "Discord Brazil Local Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, -60]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/api/alerts",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { alert_type: $json.alert_type, level: $json.level, regime: $json.regime, score: $json.score, title: $json.title, source: $json.source, link: $json.link, tendency: $json.tendency, conviction: $json.conviction, win_read: $json.win_read, dollar_read: $json.dollar_read, us_read: $json.us_read, reason: $json.reason, channels: $json.channels } }}",
+        "options": {}
+      },
+      "id": "record-brazil-local-alert",
+      "name": "Record Brazil Local Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 100]
+    }
+  ],
+  "connections": {
+    "Manual Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Brazil Local Smoke",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 10 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Brazil Local Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Brazil Local Smoke": {
+      "main": [
+        [
+          {
+            "node": "IF Brazil Alert Worthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brazil Local Feeds": {
+      "main": [
+        [
+          {
+            "node": "Brazil Local RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brazil Local RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Score Brazil Local RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Brazil Local RSS": {
+      "main": [
+        [
+          {
+            "node": "IF Brazil Alert Worthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Brazil Alert Worthy": {
+      "main": [
+        [
+          {
+            "node": "Telegram Brazil Local Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Record Brazil Local Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-06-06T00:00:00.000Z",
+  "versionId": "starter"
+}
