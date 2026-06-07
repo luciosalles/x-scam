@@ -363,7 +363,8 @@ def dashboard_html() -> bytes:
       --rail: 320px;
     }
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html, body { min-height: 100%; }
+    html { overflow-y: auto; overflow-x: hidden; }
     body {
       margin: 0;
       background:
@@ -372,13 +373,14 @@ def dashboard_html() -> bytes:
         linear-gradient(180deg, #090a0d 0%, #0d1014 55%, #090a0d 100%);
       color: var(--text);
       font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
     a { color: var(--accent); text-decoration: none; }
     .app {
       display: grid;
       grid-template-columns: var(--sidebar) 1fr var(--rail);
-      min-height: 100vh;
+      min-height: 100svh;
     }
     .sidebar {
       padding: 22px 16px;
@@ -479,7 +481,7 @@ def dashboard_html() -> bytes:
     }
     .content {
       min-width: 0;
-      overflow: auto;
+      overflow: visible;
       padding: 18px 18px 20px;
     }
     .topbar {
@@ -1113,7 +1115,7 @@ def dashboard_html() -> bytes:
       navs.forEach(link => link.classList.toggle('active', link.getAttribute('data-nav') === currentView || (currentView === 'home' && link.getAttribute('data-nav') === 'home')));
       if (currentView === 'home') {
         setCardVisibility(() => true);
-        if (rail) rail.style.display = '';
+        if (rail) rail.style.display = 'none';
         if (sourcesCard) sourcesCard.style.display = '';
       } else if (currentView === 'alerts') {
         setCardVisibility((card, idx) => idx === 0 || idx === 1 || idx === 2 || idx === 3);
@@ -1196,6 +1198,8 @@ def dashboard_html() -> bytes:
       if ($('level').value) params.set('level', $('level').value);
       if ($('regime').value) params.set('regime', $('regime').value);
       if ($('q').value) params.set('q', $('q').value);
+      const alertLimit = currentView === 'alerts' ? 200 : currentView === 'history' ? 120 : 80;
+      params.set('limit', String(alertLimit));
       const res = await fetch('/api/alerts?' + params.toString());
       const data = await res.json();
       const alerts = data.alerts || [];
@@ -1248,7 +1252,44 @@ def dashboard_html() -> bytes:
     }
 
     function renderAlerts(alerts) {
-      const recent = alerts.slice(0, 8);
+      const recent = currentView === 'alerts' ? alerts.slice(0, 30) : alerts.slice(0, 8);
+      const total = alerts.length;
+      const red = alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'RED' || String(a.level || a.regime || '').toUpperCase() === 'RISK_OFF').length;
+      const orange = alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'ORANGE').length;
+      const yellow = alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'YELLOW').length;
+      const topTrend = alerts.find(a => a.tendency)?.tendency || alerts.find(a => a.direction)?.direction || 'Sem tendencia forte';
+      const feedTitle = currentView === 'alerts' ? 'Alert Feed completo' : 'Recent Alerts';
+      const feedSub = currentView === 'alerts'
+        ? 'Lista densa para depurar, comparar e validar o que realmente merece canal.'
+        : 'Feed curto para validar qualidade sem poluir a Home.';
+      const feedBadge = currentView === 'alerts' ? `Latest ${recent.length}` : 'Latest 8';
+      const alertsCard = document.querySelector('.stack > .card:nth-of-type(3)');
+      if (alertsCard) {
+        const head = alertsCard.querySelector('.card-head h3');
+        const sub = alertsCard.querySelector('.card-head .sub');
+        const badge = alertsCard.querySelector('.card-head .badge');
+        if (head) head.textContent = feedTitle;
+        if (sub) sub.textContent = feedSub;
+        if (badge) badge.textContent = feedBadge;
+        if (currentView === 'alerts' && !document.getElementById('alertsSummary')) {
+          const toolbar = alertsCard.querySelector('.toolbar');
+          const summaryHtml = `
+            <div id="alertsSummary" style="padding: 14px 18px 0;">
+              <div class="market-strip" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+                <div class="market-tile"><div class="symbol">Total</div><div class="value">${total}</div><div class="delta">alertas carregados</div></div>
+                <div class="market-tile"><div class="symbol">Red / Risk off</div><div class="value">${red}</div><div class="delta down">impacto forte</div></div>
+                <div class="market-tile"><div class="symbol">Orange / Yellow</div><div class="value">${orange + yellow}</div><div class="delta">ruido util</div></div>
+                <div class="market-tile"><div class="symbol">Tendencia dominante</div><div class="value" style="font-size:18px; line-height:1.15;">${esc(topTrend)}</div><div class="delta">ultimo viés visto</div></div>
+              </div>
+            </div>
+          `;
+          if (toolbar && toolbar.nextElementSibling) {
+            toolbar.insertAdjacentHTML('afterend', summaryHtml);
+          } else {
+            alertsCard.insertAdjacentHTML('beforeend', summaryHtml);
+          }
+        }
+      }
       $('alerts').innerHTML = recent.length ? recent.map(a => `
         <div class="list-item">
           <div class="list-time">${fmt(a.created_at)}</div>
@@ -1348,7 +1389,9 @@ def dashboard_html() -> bytes:
       const data = await res.json();
       const sources = data.sources || [];
       const okSources = sources.filter(s => String(s.status || '').toLowerCase() === 'ok');
-      const staleSources = sources.filter(s => String(s.status || '').toLowerCase() !== 'ok');
+      const staleSources = sources
+        .filter(s => String(s.status || '').toLowerCase() !== 'ok')
+        .sort((a, b) => Number(b.latency_ms || 0) - Number(a.latency_ms || 0));
       const worstLatency = sources.reduce((max, s) => Math.max(max, Number(s.latency_ms || 0)), 0);
       $('sources').innerHTML = sources.map(s => `
         <tr>
@@ -1394,6 +1437,11 @@ def dashboard_html() -> bytes:
       $('railCheck').textContent = new Date().toLocaleTimeString();
       if (currentView === 'health') {
         $('checkSources').textContent = 'Refresh health';
+        const healthCard = document.querySelector('[data-health-card]');
+        if (healthCard) {
+          const badge = healthCard.querySelector('.card-head .badge');
+          if (badge) badge.textContent = `OK ${okSources.length} · Falhas ${staleSources.length}`;
+        }
       }
     }
 
