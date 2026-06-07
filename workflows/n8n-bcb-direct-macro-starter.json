@@ -1,0 +1,463 @@
+{
+  "id": "bcb-direct-macro-starter",
+  "name": "PROD - BCB Direct Macro",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test-trigger",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const payload = {\n  alert_type: 'test',\n  regime: 'TEST_BCB_DIRECT',\n  level: 'VERMELHO',\n  levelLabel: 'VERMELHO',\n  score: 1,\n  title: 'BCB Direct Macro Smoke Test',\n  tendency: 'teste controlado da camada macro BCB',\n  conviction: 'baixa',\n  win_read: 'Smoke test: confirmacao apenas de entrega, sem leitura real.',\n  dollar_read: 'Smoke test: confirmacao apenas de entrega, sem leitura real.',\n  us_read: 'Smoke test: confirmacao apenas de entrega, sem leitura real.',\n  reason: 'Teste manual para validar Telegram, Discord e dashboard.',\n  source: 'manual-smoke-test',\n  channels: ['telegram', 'discord', 'dashboard'],\n  quoteLines: ['PTAX USD: mock', 'Selic 2026: mock', 'IPCA 2026: mock', 'Cambio 2026: mock'].join('\\n')\n};\npayload.discordText = `**BCB DIRECT | TESTE**\\n\\n**Titulo:** ${payload.title}\\n**Tendencia:** ${payload.tendency}\\n**Conviccao:** ${payload.conviction}\\n\\n**WIN:** ${payload.win_read}\\n**Dolar:** ${payload.dollar_read}\\n**Nasdaq/ES:** ${payload.us_read}\\n\\n**Leituras:**\\n${payload.quoteLines}\\n\\n**Motivo:** ${payload.reason}`;\nreturn [{ json: payload }];"
+      },
+      "id": "build-bcb-direct-smoke-test",
+      "name": "Build BCB Direct Smoke Test",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 30 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ (() => { const now = new Date(); const end = new Date(now); const day = end.getDay(); if (day === 0) end.setDate(end.getDate() - 2); else if (day === 6) end.setDate(end.getDate() - 1); const start = new Date(end); start.setDate(start.getDate() - 7); const fmt = d => `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}-${d.getFullYear()}`; return `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda='USD'&@dataInicial='${fmt(start)}'&@dataFinalCotacao='${fmt(end)}'&$format=json`; })() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-ptax-period",
+      "name": "Fetch PTAX Period",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ (() => { const year = new Date().getFullYear(); return `https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?%24filter=Indicador%20eq%20%27Selic%27%20and%20DataReferencia%20eq%20%27${year}%27%20and%20baseCalculo%20eq%200&%24top=10&%24orderby=Data%20desc&%24format=json`; })() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-selic-expectations",
+      "name": "Fetch Selic Expectations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ (() => { const year = new Date().getFullYear(); return `https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?%24filter=Indicador%20eq%20%27IPCA%27%20and%20DataReferencia%20eq%20%27${year}%27%20and%20baseCalculo%20eq%200&%24top=10&%24orderby=Data%20desc&%24format=json`; })() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-ipca-expectations",
+      "name": "Fetch IPCA Expectations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ (() => { const year = new Date().getFullYear(); return `https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?%24filter=Indicador%20eq%20%27C%C3%A2mbio%27%20and%20DataReferencia%20eq%20%27${year}%27%20and%20baseCalculo%20eq%200&%24top=10&%24orderby=Data%20desc&%24format=json`; })() }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-cambio-expectations",
+      "name": "Fetch Cambio Expectations",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        300,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "id": "merge-bcb-1",
+      "name": "Merge BCB 1",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        560,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "id": "merge-bcb-2",
+      "name": "Merge BCB 2",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        560,
+         20
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "id": "merge-bcb-3",
+      "name": "Merge BCB 3",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        560,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ptaxRows = $items('Fetch PTAX Period', 0, 0)[0]?.json?.value || [];\nconst selicRows = $items('Fetch Selic Expectations', 0, 0)[0]?.json?.value || [];\nconst ipcaRows = $items('Fetch IPCA Expectations', 0, 0)[0]?.json?.value || [];\nconst cambioRows = $items('Fetch Cambio Expectations', 0, 0)[0]?.json?.value || [];\n\nconst staticData = $getWorkflowStaticData('global');\nstaticData.lastHash = staticData.lastHash || '';\n\nconst num = value => Number(value || 0);\nconst byDateDesc = (a, b) => String(b.Data || '').localeCompare(String(a.Data || ''));\nconst fmtPct = value => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;\nconst fmtPp = value => `${value >= 0 ? '+' : ''}${value.toFixed(2)} pp`;\nconst fmtNum = value => Number(value || 0).toFixed(4);\n\nconst ptaxClosings = ptaxRows\n  .filter(row => String(row.tipoBoletim || '').toLowerCase() === 'fechamento')\n  .sort((a, b) => String(a.dataHoraCotacao || '').localeCompare(String(b.dataHoraCotacao || '')));\n\nif (ptaxClosings.length < 2 || selicRows.length < 2 || ipcaRows.length < 2 || cambioRows.length < 2) {\n  return [];\n}\n\nconst ptaxLast = ptaxClosings[ptaxClosings.length - 1];\nconst ptaxPrev = ptaxClosings[ptaxClosings.length - 2];\nconst ptaxLastClose = num(ptaxLast.cotacaoVenda);\nconst ptaxPrevClose = num(ptaxPrev.cotacaoVenda);\nconst ptaxPct = ptaxPrevClose ? ((ptaxLastClose - ptaxPrevClose) / ptaxPrevClose) * 100 : 0;\n\nconst pickLatestPair = rows => {\n  const sorted = [...rows].sort(byDateDesc);\n  return [sorted[0], sorted.find(row => String(row.Data) !== String(sorted[0].Data)) || sorted[1]];\n};\n\nconst [selicLast, selicPrev] = pickLatestPair(selicRows);\nconst [ipcaLast, ipcaPrev] = pickLatestPair(ipcaRows);\nconst [cambioLast, cambioPrev] = pickLatestPair(cambioRows);\nif (!selicLast || !selicPrev || !ipcaLast || !ipcaPrev || !cambioLast || !cambioPrev) {\n  return [];\n}\n\nconst selicDelta = num(selicLast.Mediana) - num(selicPrev.Mediana);\nconst ipcaDelta = num(ipcaLast.Mediana) - num(ipcaPrev.Mediana);\nconst cambioDelta = num(cambioLast.Mediana) - num(cambioPrev.Mediana);\n\nlet pressureScore = 0;\nlet reliefScore = 0;\nconst reasons = [];\n\nif (ptaxPct >= 0.35) {\n  pressureScore += 34;\n  reasons.push(`PTAX USD ${fmtPct(ptaxPct)}`);\n} else if (ptaxPct <= -0.35) {\n  reliefScore += 30;\n  reasons.push(`PTAX USD ${fmtPct(ptaxPct)}`);\n}\n\nif (selicDelta >= 0.05) {\n  pressureScore += 24;\n  reasons.push(`Selic ${fmtPp(selicDelta)}`);\n} else if (selicDelta <= -0.05) {\n  reliefScore += 22;\n  reasons.push(`Selic ${fmtPp(selicDelta)}`);\n}\n\nif (ipcaDelta >= 0.05) {\n  pressureScore += 24;\n  reasons.push(`IPCA ${fmtPp(ipcaDelta)}`);\n} else if (ipcaDelta <= -0.05) {\n  reliefScore += 22;\n  reasons.push(`IPCA ${fmtPp(ipcaDelta)}`);\n}\n\nif (cambioDelta >= 0.03) {\n  pressureScore += 18;\n  reasons.push(`Cambio esp. ${fmtNum(cambioDelta)}`);\n} else if (cambioDelta <= -0.03) {\n  reliefScore += 16;\n  reasons.push(`Cambio esp. ${fmtNum(cambioDelta)}`);\n}\n\nlet regime = 'NEUTRAL';\nlet score = 0;\nlet tendency = 'sem leitura material no BCB direto';\nlet conviction = 'baixa';\nlet winRead = 'Sem acao. Aguardar mudanca material em PTAX ou expectativas.';\nlet dollarRead = 'Sem acao. Aguardar pressao ou alivio mais claro no BCB.';\nlet usRead = 'Global continua como confirmacao externa, mas este workflow e domestico.';\nlet reason = reasons.join('; ') || 'Sem mudanca material.';\n\nif (pressureScore >= reliefScore && pressureScore >= 45) {\n  regime = pressureScore >= 70 ? 'VERMELHO' : 'LARANJA';\n  score = Math.min(140, pressureScore);\n  tendency = 'vies de baixa para WIN';\n  conviction = score >= 70 ? 'alta' : 'media-alta';\n  winRead = 'WIN tende a sofrer se DI e dolar confirmarem alta e o indice perder VWAP.';\n  dollarRead = 'Dolar local tende a ficar firme se PTAX e expectativas continuarem piorando.';\n} else if (reliefScore > pressureScore && reliefScore >= 40) {\n  regime = reliefScore >= 65 ? 'VERDE_FORTE' : 'ALIVIO';\n  score = Math.min(140, reliefScore);\n  tendency = 'vies de alta para WIN';\n  conviction = score >= 65 ? 'alta' : 'media';\n  winRead = 'WIN pode ganhar folego se DI aliviar, dolar ceder e o indice sustentar VWAP.';\n  dollarRead = 'Dolar local tende a aliviar se PTAX e expectativas continuarem cedendo.';\n}\n\nif (score < 45) {\n  return [];\n}\n\nconst quoteLines = [\n  `PTAX USD: ${ptaxLastClose.toFixed(4)} (${fmtPct(ptaxPct)})`,\n  `Selic ${selicLast.DataReferencia}: ${num(selicLast.Mediana).toFixed(2)} (${fmtPp(selicDelta)})`,\n  `IPCA ${ipcaLast.DataReferencia}: ${num(ipcaLast.Mediana).toFixed(2)} (${fmtPp(ipcaDelta)})`,\n  `Cambio ${cambioLast.DataReferencia}: ${num(cambioLast.Mediana).toFixed(4)} (${fmtNum(cambioDelta)})`\n].join('\\n');\n\nconst hash = `${regime}|${score}|${quoteLines}`;\nif (staticData.lastHash === hash) {\n  return [];\n}\nstaticData.lastHash = hash;\n\nconst discordText = `**BCB DIRECT | ${regime}**\\n\\n**Tendencia:** ${tendency}\\n**Conviccao:** ${conviction}\\n\\n**WIN:** ${winRead}\\n**Dolar:** ${dollarRead}\\n**Nasdaq/ES:** ${usRead}\\n\\n**Leituras:**\\n${quoteLines}\\n\\n**Motivo:** ${reason}\\n**Fonte:** BCB PTAX + Expectativas`; \n\nreturn [{ json: {\n  alert_type: 'brazil_local',\n  regime: 'BR_LOCAL_BCB_DIRECT',\n  level: regime,\n  levelLabel: regime,\n  score,\n  title: 'BCB Direct Macro',\n  tendency,\n  conviction,\n  win_read: winRead,\n  dollar_read: dollarRead,\n  us_read: usRead,\n  reason,\n  source: 'BCB PTAX + Expectativas',\n  channels: ['telegram', 'discord', 'dashboard'],\n  quoteLines,\n  discordText,\n  generatedAt: new Date().toISOString()\n}}];"
+      },
+      "id": "score-bcb-direct",
+      "name": "Score BCB Direct",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "bcb-direct-threshold",
+              "leftValue": "={{$json.score}}",
+              "rightValue": 45,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-bcb-direct-alert",
+      "name": "IF BCB Direct Alert Worthy",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "5043666791",
+        "text": "={{'BCB DIRECT | ' + ($json.levelLabel || $json.level) + '\\n\\nTendencia: ' + $json.tendency + '\\nConviccao: ' + $json.conviction + '\\n\\nWIN: ' + $json.win_read + '\\nDolar: ' + $json.dollar_read + '\\nNasdaq/ES: ' + $json.us_read + '\\n\\nLeituras:\\n' + $json.quoteLines + '\\n\\nMotivo: ' + $json.reason + '\\nFonte: ' + $json.source}}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "telegram-bcb-direct-alert",
+      "name": "Telegram BCB Direct Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1160,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "PASTE_DISCORD_WEBHOOK_URL_HERE",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { content: $json.discordText } }}",
+        "options": {}
+      },
+      "id": "discord-bcb-direct-alert",
+      "name": "Discord BCB Direct Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8787/api/alerts",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { alert_type: $json.alert_type, level: $json.level, regime: $json.regime, score: $json.score, title: $json.title, source: $json.source, tendency: $json.tendency, conviction: $json.conviction, win_read: $json.win_read, dollar_read: $json.dollar_read, us_read: $json.us_read, reason: $json.reason, channels: $json.channels } }}",
+        "options": {}
+      },
+      "id": "record-bcb-direct-alert",
+      "name": "Record BCB Direct Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        240
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build BCB Direct Smoke Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build BCB Direct Smoke Test": {
+      "main": [
+        [
+          {
+            "node": "Telegram BCB Direct Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Discord BCB Direct Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Record BCB Direct Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Fetch PTAX Period",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Selic Expectations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch IPCA Expectations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Cambio Expectations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch PTAX Period": {
+      "main": [
+        [
+          {
+            "node": "Merge BCB 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Selic Expectations": {
+      "main": [
+        [
+          {
+            "node": "Merge BCB 1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch IPCA Expectations": {
+      "main": [
+        [
+          {
+            "node": "Merge BCB 2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch Cambio Expectations": {
+      "main": [
+        [
+          {
+            "node": "Merge BCB 3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge BCB 1": {
+      "main": [
+        [
+          {
+            "node": "Merge BCB 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge BCB 2": {
+      "main": [
+        [
+          {
+            "node": "Merge BCB 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge BCB 3": {
+      "main": [
+        [
+          {
+            "node": "Score BCB Direct",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score BCB Direct": {
+      "main": [
+        [
+          {
+            "node": "IF BCB Direct Alert Worthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF BCB Direct Alert Worthy": {
+      "main": [
+        [
+          {
+            "node": "Telegram BCB Direct Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Discord BCB Direct Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Record BCB Direct Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-06-07T00:00:00.000Z",
+  "versionId": "starter"
+}

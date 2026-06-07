@@ -1,0 +1,116 @@
+{
+  "updated": "2026-06-07",
+  "notes": "Official Banco Central do Brasil direct endpoints for n8n HTTP Request nodes. Prefer direct API for PTAX and Expectations. Use current-year filters where applicable.",
+  "base_urls": {
+    "ptax_odata": "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata",
+    "ptax_swagger": "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/swagger-ui3#/",
+    "expectativas_odata": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata",
+    "expectativas_swagger": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/swagger-ui3#/",
+    "expectativas_dataset": "https://dadosabertos.bcb.gov.br/dataset/expectativas-mercado"
+  },
+  "endpoints": [
+    {
+      "source_id": "bcb_ptax_usd_day",
+      "name": "BCB - PTAX USD dia",
+      "layer": "policy_monetary",
+      "source_type": "direct_api",
+      "n8n_use": "HTTP Request",
+      "url_template": "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='MM-DD-YYYY'&$format=json",
+      "fields": [
+        "cotacaoCompra",
+        "cotacaoVenda",
+        "dataHoraCotacao"
+      ],
+      "weight": 88,
+      "enabled": true
+    },
+    {
+      "source_id": "bcb_ptax_usd_period",
+      "name": "BCB - PTAX USD periodo",
+      "layer": "policy_monetary",
+      "source_type": "direct_api",
+      "n8n_use": "HTTP Request",
+      "url_template": "https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaPeriodo(moeda=@moeda,dataInicial=@dataInicial,dataFinalCotacao=@dataFinalCotacao)?@moeda='USD'&@dataInicial='MM-DD-YYYY'&@dataFinalCotacao='MM-DD-YYYY'&$format=json",
+      "fields": [
+        "cotacaoCompra",
+        "cotacaoVenda",
+        "dataHoraCotacao",
+        "tipoBoletim"
+      ],
+      "weight": 92,
+      "enabled": true
+    },
+    {
+      "source_id": "bcb_expectativas_selic_anual",
+      "name": "BCB - Expectativas Selic anual",
+      "layer": "policy_monetary",
+      "source_type": "direct_api",
+      "n8n_use": "HTTP Request",
+      "url_template": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$filter=Indicador eq 'Selic' and DataReferencia eq 'YYYY' and baseCalculo eq 0&$top=10&$orderby=Data desc&$format=json",
+      "fields": [
+        "Data",
+        "DataReferencia",
+        "Mediana",
+        "Media",
+        "DesvioPadrao",
+        "numeroRespondentes"
+      ],
+      "weight": 95,
+      "enabled": true
+    },
+    {
+      "source_id": "bcb_expectativas_ipca_anual",
+      "name": "BCB - Expectativas IPCA anual",
+      "layer": "inflation_activity",
+      "source_type": "direct_api",
+      "n8n_use": "HTTP Request",
+      "url_template": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$filter=Indicador eq 'IPCA' and DataReferencia eq 'YYYY' and baseCalculo eq 0&$top=10&$orderby=Data desc&$format=json",
+      "fields": [
+        "Data",
+        "DataReferencia",
+        "Mediana",
+        "Media",
+        "DesvioPadrao",
+        "numeroRespondentes"
+      ],
+      "weight": 94,
+      "enabled": true
+    },
+    {
+      "source_id": "bcb_expectativas_cambio_anual",
+      "name": "BCB - Expectativas Cambio anual",
+      "layer": "policy_monetary",
+      "source_type": "direct_api",
+      "n8n_use": "HTTP Request",
+      "url_template": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoAnuais?$filter=Indicador eq 'C%C3%A2mbio' and DataReferencia eq 'YYYY' and baseCalculo eq 0&$top=10&$orderby=Data desc&$format=json",
+      "fields": [
+        "Data",
+        "DataReferencia",
+        "Mediana",
+        "Media",
+        "DesvioPadrao",
+        "numeroRespondentes"
+      ],
+      "weight": 90,
+      "enabled": true
+    },
+    {
+      "source_id": "bcb_expectativas_selic_reunioes",
+      "name": "BCB - Expectativas Selic por reuniao",
+      "layer": "policy_monetary",
+      "source_type": "direct_api",
+      "n8n_use": "HTTP Request",
+      "url_template": "https://olinda.bcb.gov.br/olinda/servico/Expectativas/versao/v1/odata/ExpectativasMercadoSelic?$filter=baseCalculo eq 0&$top=20&$orderby=Data desc&$format=json",
+      "fields": [
+        "Data",
+        "Reuniao",
+        "Mediana",
+        "Media",
+        "DesvioPadrao",
+        "numeroRespondentes"
+      ],
+      "weight": 84,
+      "enabled": false
+    }
+  ]
+}

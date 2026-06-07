@@ -70,6 +70,7 @@ Tabelas:
 | `PROD - Trump Tariff Alert` | `Record News Alert` | `POST /api/alerts` |
 | `PROD - Market Reaction Engine` | `Record Market Alert` | `POST /api/alerts` |
 | `PROD - Brazil Local Alert` | `Record Brazil Local Alert` | `POST /api/alerts` |
+| `PROD - BCB Direct Macro` | `Record BCB Direct Alert` | `POST /api/alerts` |
 
 ## Fontes Brasil Local
 
@@ -136,3 +137,4 @@ Antes de vender ou ativar para grupos:
 3. Confirme que alertas reais aparecem em `Alert History`.
 4. Confirme que Telegram e Discord recebem a mesma leitura.
 5. Ajuste thresholds somente depois de olhar o historico.
+6. Para BCB direto, valide se PTAX e Expectativas mudaram antes de interpretar o alerta como novo.

@@ -7,7 +7,8 @@ $WorkflowPaths = @(
   "workflows\n8n-telegram-smoke-test.json",
   "workflows\n8n-trump-tariff-alert-starter.json",
   "workflows\n8n-market-reaction-engine-starter.json",
-  "workflows\n8n-brazil-local-alert-starter.json"
+  "workflows\n8n-brazil-local-alert-starter.json",
+  "workflows\n8n-bcb-direct-macro-starter.json"
 )
 
 foreach ($RelativePath in $WorkflowPaths) {

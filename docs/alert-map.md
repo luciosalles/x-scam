@@ -16,6 +16,7 @@ Atualize sempre que mudar:
 | `TEST - Telegram Smoke Test` | Validar Telegram, chat_id e credencial | Nenhuma | Telegram | Teste manual |
 | `PROD - Trump Tariff Alert` | Detectar noticias de tarifa, comercio e choque macro | Google News / fontes tematicas | Telegram, futuro Discord | Produção |
 | `PROD - Market Reaction Engine` | Detectar regime de mercado e confluencia risk-off / risk-on | Yahoo Finance chart endpoint, Stooq fallback | Telegram, Discord webhook | Produção |
+| `PROD - BCB Direct Macro` | Ler PTAX e expectativas oficiais do BCB como bias macro domestico | PTAX + Expectativas do BCB | Telegram, Discord, dashboard | Produção |
 
 ## News Alert
 
@@ -59,6 +60,7 @@ Atualize sempre que mudar:
 | --- | --- | --- |
 | `PROD - Trump Tariff Alert` | `preScore >= 100` | Pode gerar `YELLOW`, `ORANGE`, `RED` |
 | `PROD - Market Reaction Engine` | `score >= 100` | Envia apenas quando ha regime forte |
+| `PROD - BCB Direct Macro` | `score >= 45` | Usa PTAX + expectativas; acima de 70 vira `VERMELHO` |
 
 ## Dedupe
 
@@ -66,6 +68,7 @@ Atualize sempre que mudar:
 | --- | --- | --- | --- |
 | `PROD - Trump Tariff Alert` | Dedupe persistente local | 1 hora | Bloqueia repeticao da mesma noticia |
 | `PROD - Market Reaction Engine` | Dedupe por regime | 10 minutos + delta de score | Bloqueia spam e libera update quando piora |
+| `PROD - BCB Direct Macro` | Dedupe por hash de leitura | Enquanto hash nao mudar | Evita repetir a mesma leitura oficial |
 
 ## Canais
 
@@ -73,6 +76,7 @@ Atualize sempre que mudar:
 | --- | --- | --- |
 | Telegram | Canal principal do MVP | Ativo |
 | Discord | Segunda saida planejada | Preparado via `discordText` |
+| Dashboard | Historico e auditoria | Ativo via `POST /api/alerts` |
 
 ## Sensibilidade
 

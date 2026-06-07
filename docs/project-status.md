@@ -21,7 +21,7 @@ O projeto ja saiu da fase de ideia e entrou na fase de integracao operacional.
 - equilibrio entre ruido e sinal
 - rotina de dedupe e atualizacao de regime
 - leitura comparativa do UOL como backup de mercado
-- integracao oficial do BCB com `focus`, `cambio`, `normativos` e `atascomef`
+- integracao oficial do BCB por API direta com `PTAX`, `Expectativas de Mercado` e, se fizer sentido, `SGS`
 
 ### Falta construir
 
@@ -33,12 +33,13 @@ O projeto ja saiu da fase de ideia e entrou na fase de integracao operacional.
 
 ## Prioridade real
 
-1. Fechar RSS.app real do Brasil Local
-2. Validar ruido e thresholds em dia util
-3. Consolidar dashboard minimo com historico
-4. Planejar login e monetizacao
-5. Depois integrar `Profit` e pagamentos
-6. Finalizar dashboard mais bonito e onboarding mais simples
+1. Fechar RSS.app real do Brasil Local para UOL, Fazenda, Petrobras e Vale
+2. Substituir BCB RSS por integracao direta via API
+3. Validar ruido e thresholds em dia util
+4. Consolidar dashboard minimo com historico
+5. Planejar login e monetizacao
+6. Depois integrar `Profit` e pagamentos
+7. Finalizar dashboard mais bonito e onboarding mais simples
 
 ## Risco tecnico atual
 
@@ -55,6 +56,7 @@ O sistema deve ser vendido como leitura de vies e alerta operacional, nao como p
 ## O que falta para considerar esta fase fechada
 
 - Todas as fontes Brasil Local importantes com URL valida
+- BCB migrado para API direta e fora do fluxo RSS
 - Teste real em dia util sem spam
 - Mensagens finais padronizadas
 - Dashboard com historico util

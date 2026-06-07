@@ -8,6 +8,7 @@ Este documento serve para subir, testar e operar o projeto sem depender de memor
 - `PROD - Trump Tariff Alert`
 - `PROD - Market Reaction Engine`
 - `PROD - Brazil Local Alert`
+- `PROD - BCB Direct Macro`
 
 ## 2. Como subir o ambiente local
 
@@ -42,7 +43,8 @@ config/brazil_local_rss_app_urls.json
 2. Rodar `PROD - Trump Tariff Alert` manualmente.
 3. Rodar `PROD - Market Reaction Engine` manualmente.
 4. Rodar `PROD - Brazil Local Alert` manualmente.
-5. Abrir o dashboard e confirmar historico e saude das fontes.
+5. Rodar `PROD - BCB Direct Macro` manualmente.
+6. Abrir o dashboard e confirmar historico e saude das fontes.
 
 ## 5. Como interpretar o resultado
 
@@ -76,6 +78,7 @@ Nao deve depender de score para operar.
 - Camada de login, assinatura e pagamento com `Stripe`
 - Melhor consolidacao de feed real por camada
 - Persistencia historica mais rica para analise de qualidade
+- Refinar a calibracao do BCB direto depois do primeiro uso real em dia util
 
 ## 8. Regra de producao
 
@@ -85,4 +88,3 @@ Nao ative workflow com feed real antes de validar:
 - dashboard respondendo
 - Telegram e Discord entregando
 - dedupe registrando corretamente
-

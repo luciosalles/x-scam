@@ -1,6 +1,6 @@
 {
-  "updated": "2026-06-06",
-  "notes": "Use official RSS where confirmed. For the IBGE feeds below, use the official Agencia de Noticias RSS and let the scorer filter by topic. Keep enabled=false until each URL is tested. Start with IBGE, then BCB, then UOL as a practical market-news backup, then Petrobras/Tesouro/Vale if a native RSS is confirmed; otherwise use RSS.app.",
+  "updated": "2026-06-07",
+  "notes": "This file is only for RSS and RSS.app sources. Banco Central do Brasil is handled separately through direct endpoints in config/bcb_direct_endpoints.json.",
   "feeds": [
     {
       "layer": "inflation_activity",
@@ -93,65 +93,11 @@
       "priority": 1
     },
     {
-      "layer": "policy_monetary",
-      "source_id": "bcb_copom_communications",
-      "name": "BCB - Comunicados do Copom",
-      "page_url": "https://www.bcb.gov.br/controleinflacao/comunicadoscopom/cronologicos",
-      "rss_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "enabled": false,
-      "priority": 1
-    },
-    {
-      "layer": "policy_monetary",
-      "source_id": "bcb_copom_minutes",
-      "name": "BCB - Atas do Copom",
-      "page_url": "https://www.bcb.gov.br/publicacoes/atascopom/cronologicos",
-      "rss_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "enabled": false,
-      "priority": 1
-    },
-    {
-      "layer": "policy_monetary",
-      "source_id": "bcb_calendar",
-      "name": "BCB - Calendario do BC",
-      "page_url": "https://www.bcb.gov.br/acessoinformacao/calendariobc",
-      "rss_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "enabled": false,
-      "priority": 1
-    },
-    {
-      "layer": "policy_monetary",
-      "source_id": "bcb_focus",
-      "name": "BCB - Focus",
-      "page_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "rss_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "enabled": false,
-      "priority": 1
-    },
-    {
-      "layer": "policy_monetary",
-      "source_id": "bcb_cambio",
-      "name": "BCB - Cambio",
-      "page_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "rss_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "enabled": false,
-      "priority": 1
-    },
-    {
-      "layer": "policy_monetary",
-      "source_id": "bcb_normativos",
-      "name": "BCB - Normativos",
-      "page_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "rss_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "enabled": false,
-      "priority": 1
-    },
-    {
-      "layer": "policy_monetary",
-      "source_id": "bcb_atascomef",
-      "name": "BCB - Atas do Comef",
-      "page_url": "https://www.bcb.gov.br/acessoinformacao/rss",
-      "rss_url": "https://www.bcb.gov.br/acessoinformacao/rss",
+      "layer": "corporate_weights",
+      "source_id": "vale_press_releases",
+      "name": "Vale - Press Releases",
+      "page_url": "https://vale.com/en/press-releases",
+      "rss_url": "",
       "enabled": false,
       "priority": 1
     }
