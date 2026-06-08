@@ -6,10 +6,11 @@ Este dashboard e o centro minimo de operacao do MVP.
 
 | Problema | Solucao |
 | --- | --- |
-| Quero saber se o sistema esta vivo | Abra o dashboard e veja `Source Health` |
+| Quero saber se o sistema esta vivo | Abra a Home e veja `Macro Monitor` e `Main Alert` |
 | Quero ver historico dos alertas | Use a tabela `Alert History` |
 | Quero filtrar noticia ou mercado | Use `type`, `level/regime` e busca |
-| Quero saber se uma fonte quebrou | Clique em `Check Sources` |
+| Quero saber se uma fonte quebrou | Abra `Status Dev` |
+| Quero abrir a noticia sem sair do painel | Use o preview lateral |
 
 ## Como iniciar
 
@@ -35,6 +36,12 @@ Dashboard:
 http://127.0.0.1:8787/dashboard
 ```
 
+Status tecnico:
+
+```text
+http://127.0.0.1:8787/dashboard/status
+```
+
 API de alertas:
 
 ```text
@@ -45,6 +52,18 @@ API de fontes:
 
 ```text
 http://127.0.0.1:8787/api/source-health
+```
+
+API do overview macro:
+
+```text
+http://127.0.0.1:8787/api/overview
+```
+
+API do RTD:
+
+```text
+http://127.0.0.1:8787/api/rtd/overview
 ```
 
 ## Banco local
@@ -63,6 +82,37 @@ Tabelas:
 | `alert_events` | historico de alertas exibido no dashboard |
 | `source_checks` | ultimo health check das fontes |
 
+## O que a Home mostra hoje
+
+- alerta principal
+- `Macro Monitor`
+  - interno: `PTAX USD`, `Selic 2026`, `IPCA 2026`, `Cambio 2026`
+  - externo: `ES`, `NQ`, `Gold`, `DXY`
+- vies traduzido para leitura de `WIN`
+- feed curto de alertas recentes
+
+## O que a pagina RTD mostra
+
+- estado do coletor `Profit RTD`
+- buffer atual
+- bias microestrutural simples
+- simbolos monitorados
+- ticks recentes
+- plot salvo pelo coletor quando existir
+
+## Atualizacao automatica
+
+- bloco externo: atualiza rapido
+- bloco interno: atualiza mais devagar
+- a pagina nao precisa recarregar inteira para atualizar esses cards
+
+## Preview lateral e links
+
+- o titulo do alerta pode abrir a noticia em nova aba
+- o campo `Fonte` pode abrir a noticia quando houver link
+- o icone de preview abre a noticia em uma lateral dentro do proprio dashboard
+- clicar na linha do alerta muda o alerta principal
+
 ## Como os workflows gravam
 
 | Workflow | Node que grava | Endpoint |
@@ -80,7 +130,7 @@ As fontes RSS.app reais ficam em:
 config/brazil_local_rss_app_urls.json
 ```
 
-Quando uma fonte estiver com `enabled: true`, ela entra no health check do dashboard depois de clicar em `Checar fontes`.
+Quando uma fonte estiver com `enabled: true`, ela entra no health check do dashboard.
 
 Para testar fora do dashboard:
 
@@ -97,6 +147,8 @@ Para testar fora do dashboard:
 | Source Health `ok` | Fonte respondeu HTTP e conteudo basico parece valido |
 | Source Health `error` | Fonte fora, bloqueio, rede ou URL ruim |
 | Source Health `bad_content` | A fonte respondeu, mas pode ter entregue HTML ou conteudo inesperado |
+| Macro card com ponto vermelho | dado antigo ou sem atualizacao recente |
+| Macro card com ponto verde | dado considerado fresco dentro da regra da tela |
 
 ## Teste seguro
 
@@ -133,7 +185,7 @@ http://127.0.0.1:8787/dashboard
 Antes de vender ou ativar para grupos:
 
 1. Deixe o dashboard aberto.
-2. Confirme `Source Health` verde.
+2. Confirme Home e `Status Dev` coerentes.
 3. Confirme que alertas reais aparecem em `Alert History`.
 4. Confirme que Telegram e Discord recebem a mesma leitura.
 5. Ajuste thresholds somente depois de olhar o historico.

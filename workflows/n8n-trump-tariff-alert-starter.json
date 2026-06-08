@@ -143,6 +143,25 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://discord.com/api/webhooks/1512928476527857724/O9KaBnipmiBwPG9rn96qyzeUoeFfSDcKeTxgFJGQXAi1b4zl-QXH5vspAjAISwa1kYQi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { content: ($json.preAlertLevel + ' | TARIFF ALERT\\n\\nTitulo: ' + $json.normalizedTitle + '\\nTendencia: ' + $json.tendency + '\\nConviccao: ' + $json.conviction + '\\n\\nWIN: ' + $json.winRead + '\\nDolar: ' + $json.dollarRead + '\\nNasdaq/ES: ' + $json.nasdaqEsRead + '\\n\\nScore: ' + $json.preScore + '/220\\nIdade: ' + $json.ageHours + 'h\\nLink: ' + $json.link + '\\nMotivo: ' + $json.reason) } }}",
+        "options": {}
+      },
+      "id": "discord-alert",
+      "name": "Discord Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        20
+      ]
+    },
+    {
+      "parameters": {
         "jsCode": "const original = $items('High Impact Only', 0, $runIndex)[0]?.json || {};\nreturn [{ json: { ...original, dedupeStatus: $json.status || 'BLOCK', dedupeKey: $json.dedupe_key || '', dedupePreview: $json.raw_key_preview || '' } }];"
       },
       "id": "attach-dedupe-status",
@@ -240,7 +259,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ (() => { const original = $items('High Impact Only', 0, $runIndex)[0]?.json || {}; return { alert_type: 'news', level: original.preAlertLevel || '', score: original.preScore || 0, title: original.normalizedTitle || original.title || '', source: original.sourceId || 'rss', link: original.link || '', tendency: original.tendency || '', conviction: original.conviction || '', win_read: original.winRead || '', dollar_read: original.dollarRead || '', us_read: original.nasdaqEsRead || '', reason: original.reason || '', channels: ['telegram'] }; })() }}",
+        "jsonBody": "={{ (() => { const original = $items('High Impact Only', 0, $runIndex)[0]?.json || {}; return { alert_type: 'news', level: original.preAlertLevel || '', score: original.preScore || 0, title: original.normalizedTitle || original.title || '', source: original.sourceId || 'rss', link: original.link || '', tendency: original.tendency || '', conviction: original.conviction || '', win_read: original.winRead || '', dollar_read: original.dollarRead || '', us_read: original.nasdaqEsRead || '', reason: original.reason || '', channels: ['telegram', 'discord'] }; })() }}",
         "options": {}
       },
       "id": "record-news-alert",
@@ -361,14 +380,12 @@
             "node": "Telegram Alert",
             "type": "main",
             "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "Telegram Alert": {
-      "main": [
-        [
+          },
+          {
+            "node": "Discord Alert",
+            "type": "main",
+            "index": 0
+          },
           {
             "node": "Persist Alert Log",
             "type": "main",
@@ -379,7 +396,13 @@
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
+      ]
+    },
+    "Telegram Alert": {
+      "main": [
+        []
       ]
     }
   },

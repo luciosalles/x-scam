@@ -28,6 +28,7 @@ O projeto foi montado para funcionar primeiro como operacao no-code/low-code:
 - `docs/project-status.md`: estado atual, pendencias e prioridades
 - `docs/market-reaction-engine.md`: regras do fluxo de confirmacao de mercado
 - `docs/dashboard.md`: banco local, historico, filtros e health check das fontes
+- `docs/profit-rtd-flow.md`: scanner, stream, parquet e dashboard RTD
 - `scripts/score-event.js`: simulador local para calibrar score antes de automatizar
 
 ## Operacao atual
@@ -75,6 +76,12 @@ Dashboard local:
 http://127.0.0.1:8787/dashboard
 ```
 
+Pagina RTD:
+
+```text
+http://127.0.0.1:8787/dashboard/rtd
+```
+
 Para validar as URLs RSS.app do Brasil Local antes de ligar no n8n:
 
 ```powershell
@@ -85,6 +92,14 @@ Para rodar um stress test tecnico minimo:
 
 ```powershell
 .\scripts\run-stress-test.ps1
+```
+
+Para scanner, stream e status do Profit RTD:
+
+```powershell
+python scripts\profit_rtd_flow.py scan
+python scripts\profit_rtd_flow.py status
+.\scripts\start-profit-rtd-flow.ps1
 ```
 
 Para reimportar os 3 workflows:

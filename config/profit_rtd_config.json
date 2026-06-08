@@ -1,0 +1,66 @@
+{
+  "updated": "2026-06-07",
+  "prog_id": "RTDTrading.RTDServer",
+  "candidate_prog_ids": [
+    "RTDTrading.RTDServer",
+    "PROFIT.RTD",
+    "Profit.RTD",
+    "ProfitChart.RTD",
+    "ProfitPro.RTD"
+  ],
+  "poll_interval_ms": 120,
+  "flush_interval_seconds": 5,
+  "plot_interval_seconds": 30,
+  "rolling_tick_limit": 10000,
+  "chunk_tick_limit": 1000,
+  "topic_id_start": 1,
+  "symbols": [
+    "WINM26_F_0",
+    "WDOQ26_F_0"
+  ],
+  "fields": [
+    "ULT",
+    "ABE",
+    "MAX",
+    "MIN",
+    "VAR",
+    "MED",
+    "NEG",
+    "QTT",
+    "VOL",
+    "OCP",
+    "OVD",
+    "AJU",
+    "QTE",
+    "DAT",
+    "HOR",
+    "VEN"
+  ],
+  "scanner_symbols": [
+    "WINM26_F_0",
+    "WDOQ26_F_0",
+    "IBOV",
+    "DOL",
+    "IND",
+    "EURUSD"
+  ],
+  "scanner_fields": [
+    "ULT",
+    "ABE",
+    "MAX",
+    "MIN",
+    "PEX",
+    "VAR",
+    "MED",
+    "NEG",
+    "QTT",
+    "VOL",
+    "OCP",
+    "OVD",
+    "AJU",
+    "QTE",
+    "DAT",
+    "HOR",
+    "VEN"
+  ]
+}

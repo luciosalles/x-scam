@@ -9,7 +9,7 @@ Ele observa noticias e dados de mercado, decide se existe alerta relevante, grav
 ## O que voce precisa saber antes de tudo
 
 - `n8n` e o motor dos fluxos.
-- O dashboard local mostra historico e saude das fontes.
+- O dashboard local mostra historico, Macro Monitor e status tecnico.
 - O banco local guarda os alertas para nao repetir a mesma noticia.
 - Telegram e Discord sao os canais de saida.
 
@@ -20,17 +20,22 @@ Ele observa noticias e dados de mercado, decide se existe alerta relevante, grav
 - Fluxo de noticias de tarifa.
 - Fluxo de reacao de mercado.
 - Fluxo Brasil Local.
+- Fluxo BCB Direct Macro.
 - Dashboard local.
 - Banco local.
 - Dedupe para nao spammar a mesma noticia.
 - Lista de fontes com pesos e thresholds.
+- Preview lateral de noticia no dashboard.
+- Links clicaveis de noticia e fonte no dashboard.
+- Macro Monitor na Home com dados internos e externos.
+- Atualizacao automatica de blocos da Home sem recarregar a pagina inteira.
 
 ## O que ainda falta neste momento
 
 - URLs RSS.app reais de todas as fontes Brasil Local que ainda estao vazias.
-- Dashboard final mais bonito e mais completo.
 - Integracao com dados em tempo real do `Profit`.
 - Login, assinatura e pagamento com `Stripe`.
+- Colar webhook real do Discord nos workflows que ainda estao com placeholder.
 
 ## Como saber se esta tudo funcionando
 
@@ -46,7 +51,7 @@ Se os 4 acontecerem, o sistema esta vivo.
 ## O que abrir primeiro
 
 1. Abra o `n8n`.
-2. Abra o dashboard local.
+2. Abra o dashboard local em `http://127.0.0.1:8787/dashboard`.
 3. Abra o Telegram.
 4. Abra o Discord.
 
@@ -66,7 +71,7 @@ http://127.0.0.1:8787/dashboard
 
 ## Como testar sem risco
 
-### Teste 1: Telegram de fumaça
+### Teste 1: Telegram de fumaca
 
 Use o workflow:
 
@@ -79,7 +84,7 @@ O que esperar:
 - se chegar mais de uma, o teste foi repetido
 - se nao chegar nada, o bot ou o `chat_id` estao errados
 
-### Teste 2: Discord de fumaça
+### Teste 2: Discord de fumaca
 
 Use o fluxo de teste do Discord.
 
@@ -113,7 +118,20 @@ O que esperar:
 - monta o regime
 - envia somente quando ha mudanca material
 
-### Teste 5: Brasil Local
+### Teste 5: BCB Direct Macro
+
+Use:
+
+```text
+PROD - BCB Direct Macro
+```
+
+O que esperar:
+- ele consulta `PTAX`, `Selic 2026`, `IPCA 2026` e `Cambio 2026`
+- atualiza o Macro Monitor da Home
+- so deve enviar alerta se passar o filtro do fluxo
+
+### Teste 6: Brasil Local
 
 Use:
 
@@ -122,8 +140,9 @@ PROD - Brazil Local Alert
 ```
 
 O que esperar:
-- ele le BCB, IBGE, UOL e fontes locais
-- mostra se o viés do WIN e de alta ou baixa
+- ele le `IBGE`, `UOL`, `Fazenda`, `Petrobras`, `Vale` e outras fontes locais ligadas
+- a parte do `BCB` deve ser cada vez menos RSS e mais API direta
+- mostra se o vies do WIN e de alta ou baixa
 - nao precisa mostrar score para o usuario final
 
 ## Como interpretar as cores
@@ -161,19 +180,20 @@ Se o mercado piorar de verdade, ele pode reenviar como update.
 ## O que voce deve fazer no dia a dia
 
 1. Abrir o dashboard.
-2. Ver se as fontes estao verdes.
+2. Ver se a Home e o `Status Dev` estao coerentes.
 3. Rodar um teste de Telegram ou Discord.
 4. Rodar um workflow real manualmente.
 5. Conferir se o alerta chegou.
-6. Se funcionar, deixar em live.
+6. Conferir se o alerta apareceu no dashboard.
+7. Se funcionar, deixar em live.
 
 ## O que esta faltando para a fase atual ser realmente fechada
 
 1. Colocar as URLs RSS.app reais do Brasil Local que ainda faltam.
 2. Validar essas URLs em dia util.
 3. Confirmar os thresholds com historico real.
-4. Ligar Brasil Local no n8n sem spam.
-5. Melhorar o dashboard final.
+4. Colocar o webhook real do Discord nos workflows que ainda estao com placeholder.
+5. Confirmar segunda-feira com mercado aberto se o Macro Monitor atualiza como esperado.
 
 ## Regra simples
 

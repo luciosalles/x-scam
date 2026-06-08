@@ -120,7 +120,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "PASTE_DISCORD_WEBHOOK_URL_HERE",
+        "url": "https://discord.com/api/webhooks/1512928476527857724/O9KaBnipmiBwPG9rn96qyzeUoeFfSDcKeTxgFJGQXAi1b4zl-QXH5vspAjAISwa1kYQi",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",

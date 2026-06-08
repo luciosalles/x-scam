@@ -1,4 +1,4 @@
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+﻿from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import hashlib
 import html
@@ -921,26 +921,22 @@ def dashboard_html() -> bytes:
       </div>
       <nav class="nav">
         <a class="active" href="/dashboard">Dashboard <span class="tag">Home</span></a>
-        <a href="/dashboard/alerts">Alert Feed <span class="tag">Live</span></a>
-        <a href="/dashboard/health">Health <span class="tag">OK</span></a>
-        <a href="/dashboard/history">History <span class="tag">DB</span></a>
-        <a href="/dashboard/integrations">Integrations <span class="tag">WS</span></a>
-        <a href="/dashboard/rtd">RTD Flow <span class="tag">Soon</span></a>
+        <a href="/dashboard/alerts">Alertas <span class="tag">Live</span></a>
+        <a href="/dashboard/health">Saude <span class="tag">OK</span></a>
+        <a href="/dashboard/history">Historico <span class="tag">DB</span></a>
+        <a href="/dashboard/integrations">Integracoes <span class="tag">WS</span></a>
+        <a href="/dashboard/rtd">Fluxo RTD <span class="tag">Soon</span></a>
       </nav>
       <div class="sidebar-card">
         <div class="label">Proximo passo</div>
-        <div class="title">Home shell first</div>
+        <div class="title">Home primeiro</div>
         <p class="sub">Cards sem excesso, sem overlap, pronto para ligar dados reais depois.</p>
-        <button id="refresh">Refresh live</button>
+        <button id="refresh">Atualizar ao vivo</button>
       </div>
     </aside>
 
     <section class="content">
       <div class="topbar">
-        <div class="hero">
-          <h2>Dashboard</h2>
-          <p>Home enxuta para bias macro, fontes e alerta principal.</p>
-        </div>
         <div class="searchbox">
           <span style="color:var(--muted)">?</span>
           <input id="q" placeholder="Buscar titulo, fonte, motivo">
@@ -951,22 +947,14 @@ def dashboard_html() -> bytes:
           <div class="pill"><span class="dot bad"></span><span id="summaryState">RISK MONITOR</span></div>
         </div>
       </div>
-      <div class="toolbar" data-view="alerts history" style="margin:0 0 18px; padding:0;">
-        <div class="filters" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
-          <div class="badge">Feed completo</div>
-          <div class="badge" id="alertsCount">0 alerts</div>
-          <div class="badge" id="alertsRed">0 red</div>
-          <div class="badge" id="alertsRecent">0 recentes</div>
-        </div>
-      </div>
 
       <div class="workspace">
         <div class="stack">
           <article class="card">
             <div class="card-head">
               <div>
-                <h3>Main Alert</h3>
-                <div class="sub">Alerta principal atual, sem ru?do de canal.</div>
+                <h3>Alerta principal</h3>
+                <div class="sub">Leitura principal atual, sem ruido de canal.</div>
               </div>
               <div class="badge" id="mainBadge">Aguardando sinal</div>
             </div>
@@ -1007,8 +995,8 @@ def dashboard_html() -> bytes:
           <article class="card">
             <div class="card-head">
               <div>
-                <h3>Market Strip</h3>
-                <div class="sub">Quatro leituras-chave, visual limpo e compacto.</div>
+                <h3>Faixa de mercado</h3>
+                <div class="sub">Leituras-chave, visual limpo e compacto.</div>
               </div>
               <div class="badge">Bias snapshots</div>
             </div>
@@ -1020,10 +1008,10 @@ def dashboard_html() -> bytes:
           <article class="card">
             <div class="card-head">
               <div>
-                <h3>Recent Alerts</h3>
+                <h3>Alertas recentes</h3>
                 <div class="sub">Feed curto para validar qualidade sem poluir a Home.</div>
               </div>
-              <div class="badge">Latest 8</div>
+              <div class="badge">Ultimos 8</div>
             </div>
             <div class="toolbar" style="padding:14px 18px 0;">
               <div class="filters">
@@ -1058,7 +1046,7 @@ def dashboard_html() -> bytes:
           <article class="card" data-history-card>
             <div class="card-head">
               <div>
-                <h3>Alert History</h3>
+                <h3>Historico de alertas</h3>
                 <div class="sub">Tabela tecnica para investigar o que disparou.</div>
               </div>
               <div class="badge">DB log</div>
@@ -1080,7 +1068,7 @@ def dashboard_html() -> bytes:
           <article class="card mini">
             <div class="card-head" style="padding:0 0 8px;border-bottom:0;">
               <div>
-                <h3>System Rail</h3>
+                <h3>Trilho do sistema</h3>
                 <div class="sub">Saude resumida sem ocupar a Home.</div>
               </div>
             </div>
@@ -1091,7 +1079,7 @@ def dashboard_html() -> bytes:
           <article class="card mini" data-health-card>
             <div class="card-head" style="padding:0 0 8px;border-bottom:0;">
               <div>
-                <h3>Health</h3>
+                <h3>Saude</h3>
                 <div class="sub">Falhas e latencia das fontes.</div>
               </div>
             </div>
@@ -1100,15 +1088,24 @@ def dashboard_html() -> bytes:
           <article class="card mini">
             <div class="card-head" style="padding:0 0 8px;border-bottom:0;">
               <div>
-                <h3>View Modes</h3>
-                <div class="sub">Home, alerts, health, history, integrations, RTD.</div>
+                <h3>Modos de tela</h3>
+                <div class="sub">Home, alertas, saude, historico, integracoes, RTD.</div>
               </div>
             </div>
-            <div class="mini-row"><strong>Mode</strong><span class="pill ok">Home shell</span></div>
-            <div class="mini-row"><strong>RTD</strong><span class="pill warn">Separate page</span></div>
-            <div class="mini-row"><strong>Integrations</strong><span class="pill">Telegram / Discord</span></div>
+            <div class="mini-row"><strong>Modo</strong><span class="pill ok">Home</span></div>
+            <div class="mini-row"><strong>RTD</strong><span class="pill warn">Pagina separada</span></div>
+            <div class="mini-row"><strong>Integracoes</strong><span class="pill">Telegram / Discord</span></div>
           </article>
         </aside>
+      </div>
+
+      <div class="toolbar" data-view="alerts history" style="margin:18px 0 0; padding:0;">
+        <div class="filters" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+          <div class="badge">Feed completo</div>
+          <div class="badge" id="alertsCount">0 alerts</div>
+          <div class="badge" id="alertsRed">0 red</div>
+          <div class="badge" id="alertsRecent">0 recentes</div>
+        </div>
       </div>
 
       <div class="workspace" style="grid-template-columns:1fr; margin-top:18px;">
@@ -1162,17 +1159,19 @@ def dashboard_html() -> bytes:
       const heroSub = document.querySelector('.hero p');
       const navs = Array.from(document.querySelectorAll('[data-nav]'));
       const setCardVisibility = (predicate) => stackCards.forEach((card, idx) => { card.style.display = predicate(card, idx) ? '' : 'none'; });
-      const titleMap = {
-        home: ['Dashboard', 'Home enxuta para bias macro, fontes e alerta principal.'],
-        alerts: ['Alert Feed', 'Lista completa para depurar e acompanhar alertas.'],
-        health: ['Health', 'Saude das fontes, latencia e falhas.'],
-        history: ['History', 'Historico tecnico e dedupe.'],
-        integrations: ['Integrations', 'Telegram, Discord e testes de envio.'],
-        rtd: ['RTD Flow', 'Fluxo separado para scanner Profit RTD.']
-      };
-      const pair = titleMap[currentView] || titleMap.home;
-      heroTitle.textContent = pair[0];
-      heroSub.textContent = pair[1];
+      if (heroTitle && heroSub) {
+        const titleMap = {
+          home: ['', ''],
+          alerts: ['Alertas', 'Lista completa para depurar e acompanhar alertas.'],
+          health: ['Saude', 'Falhas, latencia e fontes.'],
+          history: ['Historico', 'Historico tecnico e dedupe.'],
+          integrations: ['Integracoes', 'Telegram, Discord e testes de envio.'],
+          rtd: ['Fluxo RTD', 'Fluxo separado para scanner Profit RTD.']
+        };
+        const pair = titleMap[currentView] || titleMap.home;
+        heroTitle.textContent = pair[0];
+        heroSub.textContent = pair[1];
+      }
       search.style.display = (currentView === 'alerts' || currentView === 'history') ? 'flex' : 'none';
       navs.forEach(link => link.classList.toggle('active', link.getAttribute('data-nav') === currentView || (currentView === 'home' && link.getAttribute('data-nav') === 'home')));
       if (currentView === 'home') {
@@ -1221,7 +1220,7 @@ def dashboard_html() -> bytes:
           <article class="card">
             <div class="card-head">
               <div>
-                <h3>RTD Flow</h3>
+                <h3>Fluxo RTD</h3>
                 <div class="sub">Painel pronto para o scanner Profit RTD e leitura de micro-vies em tempo quase real.</div>
               </div>
               <div class="badge">Pipeline</div>
@@ -1320,11 +1319,11 @@ def dashboard_html() -> bytes:
       const orange = alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'ORANGE').length;
       const yellow = alerts.filter(a => String(a.level || a.regime || '').toUpperCase() === 'YELLOW').length;
       const topTrend = alerts.find(a => a.tendency)?.tendency || alerts.find(a => a.direction)?.direction || 'Sem tendencia forte';
-      const feedTitle = currentView === 'alerts' ? 'Alert Feed completo' : 'Recent Alerts';
+      const feedTitle = currentView === 'alerts' ? 'Alertas completos' : 'Alertas recentes';
       const feedSub = currentView === 'alerts'
         ? 'Lista densa para depurar, comparar e validar o que realmente merece canal.'
         : 'Feed curto para validar qualidade sem poluir a Home.';
-      const feedBadge = currentView === 'alerts' ? `Latest ${recent.length}` : 'Latest 8';
+      const feedBadge = currentView === 'alerts' ? `Ultimos ${recent.length}` : 'Ultimos 8';
       const alertsCard = document.querySelector('.stack > .card:nth-of-type(3)');
       if (alertsCard) {
         const head = alertsCard.querySelector('.card-head h3');
@@ -1340,7 +1339,7 @@ def dashboard_html() -> bytes:
               <div class="market-strip" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
                 <div class="market-tile"><div class="symbol">Total</div><div class="value">${total}</div><div class="delta">alertas carregados</div></div>
                 <div class="market-tile"><div class="symbol">Red / Risk off</div><div class="value">${red}</div><div class="delta down">impacto forte</div></div>
-                <div class="market-tile"><div class="symbol">Orange / Yellow</div><div class="value">${orange + yellow}</div><div class="delta">ruido util</div></div>
+                <div class="market-tile"><div class="symbol">Laranja / Amarelo</div><div class="value">${orange + yellow}</div><div class="delta">ruido util</div></div>
                 <div class="market-tile"><div class="symbol">Tendencia dominante</div><div class="value" style="font-size:18px; line-height:1.15;">${esc(topTrend)}</div><div class="delta">ultimo viés visto</div></div>
               </div>
             </div>
@@ -1466,7 +1465,7 @@ def dashboard_html() -> bytes:
         </tr>
       `).join('') || '<tr><td colspan="6" class="muted">Sem fontes</td></tr>';
 
-      const healthTitle = currentView === 'health' ? 'Saude das fontes' : 'Health';
+      const healthTitle = currentView === 'health' ? 'Saude das fontes' : 'Saude';
       const healthSub = currentView === 'health' ? 'Falhas primeiro, stale data depois, latencia em terceiro.' : 'Falhas e latencia das fontes.';
       const healthCard = document.querySelector('[data-health-card]');
       if (healthCard) {
